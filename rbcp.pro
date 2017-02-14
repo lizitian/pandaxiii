@@ -1,4 +1,4 @@
-QT      = widgets
+QT      = widgets network
 HEADERS = rbcp.h
 FORMS   = rbcp.ui
-SOURCES = rbcp.cpp
+SOURCES = rbcp.cpp rbcp_com.cpp
