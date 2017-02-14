@@ -1,2 +1,4 @@
-QT += widgets
-SOURCES += rbcp.cpp
+QT      = widgets
+HEADERS = rbcp.h
+FORMS   = rbcp.ui
+SOURCES = rbcp.cpp
