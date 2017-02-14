@@ -13,7 +13,159 @@
   <property name="windowTitle">
    <string>rbcp</string>
   </property>
-  <widget class="QWidget" name="MainWidget"/>
+  <widget class="QWidget" name="MainWidget">
+   <widget class="QLabel" name="ipaddrlabel">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>40</y>
+      <width>65</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>IP Address:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="ipaddr">
+    <property name="geometry">
+     <rect>
+      <x>144</x>
+      <y>35</y>
+      <width>120</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="portlabel">
+    <property name="geometry">
+     <rect>
+      <x>324</x>
+      <y>40</y>
+      <width>28</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Port:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="port">
+    <property name="geometry">
+     <rect>
+      <x>371</x>
+      <y>35</y>
+      <width>120</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="addresslabel">
+    <property name="geometry">
+     <rect>
+      <x>551</x>
+      <y>40</y>
+      <width>50</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Address:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="address">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>35</y>
+      <width>120</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="datalabel">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>105</y>
+      <width>30</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Data:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="data">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>100</y>
+      <width>120</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="write">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>100</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>write</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lengthlabel">
+    <property name="geometry">
+     <rect>
+      <x>435</x>
+      <y>105</y>
+      <width>45</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Length:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="length">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>100</y>
+      <width>120</width>
+      <height>30</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="read">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>100</y>
+      <width>100</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>read</string>
+    </property>
+   </widget>
+   <widget class="QTextBrowser" name="output">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>180</y>
+      <width>680</width>
+      <height>380</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
  </widget>
  <resources/>
  <connections/>
