@@ -1,16 +1,20 @@
 #ifndef RBCP_H
 #define RBCP_H
-struct rbcp_header {
-    unsigned char type;
-    unsigned char command;
-    unsigned char id;
-    unsigned char length;
-    unsigned int address;
-};
 #include <QTime>
 #include <QtEndian>
 #include <QUdpSocket>
 #include "ui_rbcp.h"
+#define RBCP_CMD_WR 0x80
+#define RBCP_CMD_RD 0xc0
+typedef struct {
+    quint8 type;
+    quint8 command;
+    quint8 id;
+    quint8 length;
+    quint32 address;
+} rbcp_header;
+bool rbcp_com(const QHostAddress &, quint16, quint8, quint8, quint32, void *);
+void message_handler(QtMsgType, const QMessageLogContext &, const QString &);
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -21,8 +25,5 @@ private slots:
     void on_read_clicked();
 private:
     Ui::MainWindow ui;
-    QUdpSocket sock;
-    void log(QString s);
-    void rbcp_com1(QString ipaddr, unsigned int port, struct rbcp_header *header, const void *data, char *buffer);
 };
 #endif
