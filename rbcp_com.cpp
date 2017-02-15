@@ -65,7 +65,7 @@ void MainWindow::rbcp_com(QString ipaddr, unsigned int port, struct rbcp_header 
     if(header->command == RBCP_CMD_RD)
         for(int i = 8; i < recv_length; i++) {
             if(i % 8 == 0)
-                sprintf(logbuf, "[0x%.8x] %.2x ", ntohl(header->address) + i - 8, (unsigned char)buffer[i]);
+                sprintf(logbuf, "[0x%.8x] %.2x ", qFromBigEndian(header->address) + i - 8, (unsigned char)buffer[i]);
             else if(i % 8 == 7)
                 sprintf(logbuf, "%.2x\n", (unsigned char)buffer[i]);
             else if(i % 8 == 3)
@@ -75,7 +75,7 @@ void MainWindow::rbcp_com(QString ipaddr, unsigned int port, struct rbcp_header 
             log(QString(logbuf));
         }
     else {
-        sprintf(logbuf, "0x%x: OK", ntohl(header->address));
+        sprintf(logbuf, "0x%x: OK", qFromBigEndian(header->address));
         log(QString(logbuf));
     }
     log(QString("\n"));

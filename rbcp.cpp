@@ -17,11 +17,11 @@ int main(int argc, char *argv[])
 void MainWindow::on_write_clicked(bool checked)
 {
     QByteArray ipaddr = ui.ipaddr->text().toUtf8();
-    unsigned int port = ui.port->text().toInt();
+    int port = ui.port->text().toInt(0, 0);
     header.command = RBCP_CMD_WR;
     header.length = 1;
-    header.address = htonl(ui.address->text().toInt());
-    unsigned char data = ui.data->text().toInt();
+    header.address = qToBigEndian(ui.address->text().toUInt(0, 0));
+    unsigned char data = ui.data->text().toInt(0, 0);
     char buffer[UDP_BUF_SIZE];
     rbcp_com(ipaddr.data(), port, &header, &data, buffer);
 }
@@ -29,10 +29,10 @@ void MainWindow::on_write_clicked(bool checked)
 void MainWindow::on_read_clicked(bool checked)
 {
     QByteArray ipaddr = ui.ipaddr->text().toUtf8();
-    unsigned int port = ui.port->text().toInt();
+    int port = ui.port->text().toInt(0, 0);
     header.command = RBCP_CMD_RD;
-    header.length = ui.length->text().toInt();
-    header.address = htonl(ui.address->text().toInt());
+    header.length = ui.length->text().toInt(0, 0);
+    header.address = qToBigEndian(ui.address->text().toUInt(0, 0));
     char buffer[UDP_BUF_SIZE];
     rbcp_com(ipaddr.data(), port, &header, NULL, buffer);
 }

@@ -4,7 +4,6 @@
 #define RBCP_CMD_WR 0x80
 #define RBCP_CMD_RD 0xC0
 #define UDP_BUF_SIZE 2048
-#include <arpa/inet.h>
 struct rbcp_header {
     unsigned char type;
     unsigned char command;
@@ -12,9 +11,10 @@ struct rbcp_header {
     unsigned char length;
     unsigned int address;
 };
+#include <QTime>
+#include <QtEndian>
 #include <QApplication>
 #include <QUdpSocket>
-#include <QTime>
 #include "ui_rbcp.h"
 class MainWindow : public QMainWindow
 {
