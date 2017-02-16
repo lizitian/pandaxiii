@@ -157,8 +157,8 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     log_packet(recv_size, recv_buffer);
     rbcp_header recv_header;
     memcpy(&recv_header, recv_buffer, sizeof(rbcp_header));
-    if((recv_header.type != header.type) || (recv_header.command != (command | 0x08)) ||
-        (recv_header.id != header.id) || (recv_header.length != length) || (recv_header.address != address)) {
+    if((recv_header.type != header.type) || (recv_header.command != (header.command | 0x08)) ||
+        (recv_header.id != header.id) || (recv_header.length != header.length) || (recv_header.address != header.address)) {
         qWarning("ERROR: Received Packet Header Error.\n");
         delete []recv_buffer;
         return false;
