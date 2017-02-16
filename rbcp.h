@@ -14,12 +14,12 @@ typedef struct {
     quint32 address;
 } rbcp_header;
 bool rbcp_com(const QHostAddress &, quint16, quint8, quint8, quint32, void *);
-void message_handler(QtMsgType, const QMessageLogContext &, const QString &);
+void msg_handler(QtMsgType, const char *);
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    MainWindow(QWidget *parent = Q_NULLPTR);
+    MainWindow(QWidget *parent = 0);
 private slots:
     void on_write_clicked();
     void on_read_clicked();

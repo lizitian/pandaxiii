@@ -3,7 +3,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     MainWindow window;
-    qInstallMessageHandler(message_handler);
+    qInstallMsgHandler(msg_handler);
     window.show();
     return app.exec();
 }
@@ -70,14 +70,14 @@ static inline void log_packet(qint64 size, const void *buffer)
     qint64 i;
     for(i = 0; i < size; i++) {
         if(i % 4 == 0)
-            qInfo("Info: [%03x]:%02x ", (quint32)i, data[i]);
+            qDebug("Info: [%03x]:%02x ", (quint32)i, data[i]);
         else if(i % 4 == 3)
-            qInfo("%02x\n", data[i]);
+            qDebug("%02x\n", data[i]);
         else
-            qInfo("%02x ", data[i]);
+            qDebug("%02x ", data[i]);
     }
     if(i % 4 != 0)
-        qInfo("\n");
+        qDebug("\n");
 }
 
 bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 length, quint32 address, void *data)
@@ -105,7 +105,7 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         qWarning("ERROR: Invalid Length.\n");
         return false;
     }
-    if(data == Q_NULLPTR) {
+    if(data == NULL) {
         qWarning("ERROR: Internal Error - Data is Null.\n");
         return false;
     }
@@ -116,7 +116,7 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     if(command == RBCP_CMD_WR)
         send_size += length;
     quint8 *send_buffer = new quint8[send_size];
-    qInfo("Info: Prepare to Sent:\n");
+    qDebug("Info: Prepare to Sent:\n");
     log_packet(send_size, send_buffer);
     QUdpSocket sock;
     for(qint8 i = 0; i < 3; i++) {
@@ -124,7 +124,7 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         construct_packet(send_buffer, &header, data);
         sock.writeDatagram((char *)send_buffer, send_size, ipaddr, port);
         if(i == 0)
-            qInfo("Info: The packet have been sent!\nInfo: Wait to receive the ACK packet...\n");
+            qDebug("Info: The packet have been sent!\nInfo: Wait to receive the ACK packet...\n");
         else
             qWarning("ERROR: Timeout!\n");
         t.start();
@@ -151,7 +151,7 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         delete []recv_buffer;
         return false;
     }
-    qInfo("Info: Received:\n");
+    qDebug("Info: Received:\n");
     log_packet(recv_size, recv_buffer);
     if(command == RBCP_CMD_WR) {
         // to check
@@ -163,12 +163,10 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     return true;
 }
 
-void message_handler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+void msg_handler(QtMsgType type, const char *msg)
 {
-    Q_UNUSED(context);
-    QByteArray local_msg = msg.toLocal8Bit();
-    if((type == QtInfoMsg) || (type == QtWarningMsg))
-        fputs(local_msg.constData(), stdout);
+    if((type == QtDebugMsg) || (type == QtWarningMsg))
+        fputs(msg, stdout);
     else
-        fputs(local_msg.constData(), stderr);
+        fputs(msg, stderr);
 }
