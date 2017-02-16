@@ -54,6 +54,7 @@ void MainWindow::on_read_clicked()
         ui.output->moveCursor(QTextCursor::End);
         ui.output->insertPlainText("Error!\n");
     }
+    delete []data;
 }
 
 static inline void construct_packet(void *buffer, const rbcp_header *header, const void *data)
