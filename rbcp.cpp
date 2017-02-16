@@ -89,6 +89,7 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         .length = 0,
         .address = 0
     };
+    QUdpSocket sock;
     if(ipaddr.isNull()) {
         qWarning("ERROR: Invalid IP Address.\n");
         return false;
@@ -109,6 +110,10 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         qWarning("ERROR: Internal Error - Data is Null.\n");
         return false;
     }
+    if(!sock.bind()) {
+        qWarning("ERROR: Internal Error - Cannot Bind a UDP Port.\n");
+        return false;
+    }
     header.command = command;
     header.length = length;
     header.address = qToBigEndian(address);
@@ -118,7 +123,6 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     quint8 *send_buffer = new quint8[send_size];
     qDebug("Info: Prepare to Sent:\n");
     log_packet(send_size, send_buffer);
-    QUdpSocket sock;
     for(qint8 i = 0; i < 3; i++) {
         QTime t;
         construct_packet(send_buffer, &header, data);
