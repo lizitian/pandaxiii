@@ -56,12 +56,11 @@ void MainWindow::on_read_clicked()
     }
 }
 
-static inline void construct_packet(void *buffer, rbcp_header *header, const void *data)
+static inline void construct_packet(void *buffer, const rbcp_header *header, const void *data)
 {
     memcpy(buffer, header, sizeof(rbcp_header));
     if(header->command == RBCP_CMD_WR)
         memcpy((quint8 *)buffer + sizeof(rbcp_header), data, header->length);
-    header->id++;
 }
 
 static inline void log_packet(qint64 size, const void *buffer)
@@ -82,13 +81,8 @@ static inline void log_packet(qint64 size, const void *buffer)
 
 bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 length, quint32 address, void *data)
 {
-    static rbcp_header header = {
-        .type = 0xff,
-        .command = 0,
-        .id = 0,
-        .length = 0,
-        .address = 0
-    };
+    const quint8 type = 0xff;
+    static rbcp_header header = { type, 0x00, 0x00, 0x00, 0x00000000 };
     QUdpSocket sock;
     if(ipaddr.isNull()) {
         qWarning("ERROR: Invalid IP Address.\n");
@@ -115,21 +109,22 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         return false;
     }
     header.command = command;
+    header.id++;
     header.length = length;
     header.address = qToBigEndian(address);
     qint64 send_size = sizeof(rbcp_header);
     if(command == RBCP_CMD_WR)
         send_size += length;
     quint8 *send_buffer = new quint8[send_size];
-    qDebug("Info: Prepare to Sent:\n");
-    log_packet(send_size, send_buffer);
     for(qint8 i = 0; i < 3; i++) {
         QTime t;
         construct_packet(send_buffer, &header, data);
         sock.writeDatagram((char *)send_buffer, send_size, ipaddr, port);
-        if(i == 0)
-            qDebug("Info: The packet have been sent!\nInfo: Wait to receive the ACK packet...\n");
-        else
+        if(i == 0) {
+            qDebug("Info: Sent Packet:\n");
+            log_packet(send_size, send_buffer);
+            qDebug("Info: Wait to receive the ACK packet...\n");
+        } else
             qWarning("ERROR: Timeout!\n");
         t.start();
         while((t.elapsed() < 1000) && !sock.hasPendingDatagrams());
@@ -139,8 +134,11 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     }
     qint64 recv_size = sock.pendingDatagramSize();
     delete []send_buffer;
-    if(recv_size <= 0) {
-        qWarning("ERROR: No Packet Received.\n");
+    if(recv_size != (qint64)(sizeof(rbcp_header) + length)) {
+        if(recv_size == -1)
+            qWarning("ERROR: No Packet Received.\n");
+        else
+            qWarning("ERROR: Packet Length Error.\n");
         return false;
     }
     quint8 *recv_buffer = new quint8[recv_size];
@@ -148,21 +146,34 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     quint16 recv_port;
     sock.readDatagram((char *)recv_buffer, recv_size, &recv_ipaddr, &recv_port);
     if((recv_ipaddr != ipaddr) || (recv_port != port)) {
-        // to verify
-        QByteArray warn_info = QString("ERROR: Received a Packet From %1:%2, Expected %3:%4.\n")
-            .arg(recv_ipaddr.toString()).arg(recv_port).arg(ipaddr.toString()).arg(port).toLocal8Bit();
-        qWarning(warn_info.constData());
+        qWarning("ERROR: Received a Packet From %s:%u, Expected %s:%u.\n",
+            recv_ipaddr.toString().toLocal8Bit().constData(), recv_port, ipaddr.toString().toLocal8Bit().constData(), port);
         delete []recv_buffer;
         return false;
     }
     qDebug("Info: Received:\n");
     log_packet(recv_size, recv_buffer);
-    if(command == RBCP_CMD_WR) {
-        // to check
-    } else if(command == RBCP_CMD_RD) {
-        // to check
-        memcpy(data, recv_buffer + sizeof(rbcp_header), length);
+    rbcp_header recv_header;
+    memcpy(&recv_header, recv_buffer, sizeof(rbcp_header));
+    if((recv_header.type != type) || (recv_header.command != (command | 0x08)) ||
+        (recv_header.id != header.id) || (recv_header.length != length) || (recv_header.address != address)) {
+        qWarning("ERROR: Received Packet Header Error.\n");
+        delete []recv_buffer;
+        return false;
     }
+    if(command == RBCP_CMD_WR) {
+        quint8 *recv_data = new quint8[length];
+        memcpy(recv_data, recv_buffer + sizeof(rbcp_header), length);
+        if(memcmp(recv_data, data, length)) {
+            qWarning("ERROR: Error ACK Packet.\n");
+            delete []recv_data;
+            delete []recv_buffer;
+            return false;
+        }
+        delete []recv_data;
+    }
+    if(command == RBCP_CMD_RD)
+        memcpy(data, recv_buffer + sizeof(rbcp_header), length);
     delete []recv_buffer;
     return true;
 }
