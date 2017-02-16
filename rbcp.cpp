@@ -81,8 +81,7 @@ static inline void log_packet(qint64 size, const void *buffer)
 
 bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 length, quint32 address, void *data)
 {
-    const quint8 type = 0xff;
-    static rbcp_header header = { type, 0x00, 0x00, 0x00, 0x00000000 };
+    static quint8 id = 0x00;
     QUdpSocket sock;
     if(ipaddr.isNull()) {
         qWarning("ERROR: Invalid IP Address.\n");
@@ -108,8 +107,10 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         qWarning("ERROR: Internal Error - Cannot Bind a UDP Port.\n");
         return false;
     }
+    rbcp_header header;
+    header.type = 0xff;
     header.command = command;
-    header.id++;
+    header.id = id++;
     header.length = length;
     header.address = qToBigEndian(address);
     qint64 send_size = sizeof(rbcp_header);
@@ -155,7 +156,7 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     log_packet(recv_size, recv_buffer);
     rbcp_header recv_header;
     memcpy(&recv_header, recv_buffer, sizeof(rbcp_header));
-    if((recv_header.type != type) || (recv_header.command != (command | 0x08)) ||
+    if((recv_header.type != header.type) || (recv_header.command != (command | 0x08)) ||
         (recv_header.id != header.id) || (recv_header.length != length) || (recv_header.address != address)) {
         qWarning("ERROR: Received Packet Header Error.\n");
         delete []recv_buffer;
