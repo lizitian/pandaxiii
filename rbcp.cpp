@@ -68,16 +68,16 @@ static inline void log_packet(qint64 size, const void *buffer)
 {
     quint8 *data = (quint8 *)buffer;
     qint64 i;
+    QString line;
     for(i = 0; i < size; i++) {
         if(i % 4 == 0)
-            qDebug("Info: [%03x]:%02x ", (quint32)i, data[i]);
-        else if(i % 4 == 3)
-            qDebug("%02x\n", data[i]);
+            line.sprintf("[%03x]:", (quint32)i);
+        line.append(QString().sprintf("%02x", data[i]));
+        if(i % 4 == 3)
+            qDebug() << qPrintable(line);
         else
-            qDebug("%02x ", data[i]);
+            line.append(' ');
     }
-    if(i % 4 != 0)
-        qDebug("\n");
 }
 
 bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 length, quint32 address, void *data)
@@ -85,27 +85,27 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     static quint8 id = 0x00;
     QUdpSocket sock;
     if(ipaddr.isNull()) {
-        qWarning("ERROR: Invalid IP Address.\n");
+        qWarning("Invalid IP Address.");
         return false;
     }
     if(port == 0) {
-        qWarning("ERROR: Invalid Port.\n");
+        qWarning("Invalid Port.");
         return false;
     }
     if((command != RBCP_CMD_WR) && (command != RBCP_CMD_RD)) {
-        qWarning("ERROR: Internal Error - Unknown Command.\n");
+        qWarning("Internal Error - Unknown Command.");
         return false;
     }
     if(length == 0) {
-        qWarning("ERROR: Invalid Length.\n");
+        qWarning("Invalid Length.");
         return false;
     }
     if(data == NULL) {
-        qWarning("ERROR: Internal Error - Data is Null.\n");
+        qWarning("Internal Error - Data is Null.");
         return false;
     }
     if(!sock.bind()) {
-        qWarning("ERROR: Internal Error - Cannot Bind a UDP Port.\n");
+        qWarning("Internal Error - Cannot Bind a UDP Port.");
         return false;
     }
     rbcp_header header;
@@ -123,11 +123,11 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         construct_packet(send_buffer, &header, data);
         sock.writeDatagram((char *)send_buffer, send_size, ipaddr, port);
         if(i == 0) {
-            qDebug("Info: Sent Packet:\n");
+            qDebug("Sent Packet:");
             log_packet(send_size, send_buffer);
-            qDebug("Info: Wait to receive the ACK packet...\n");
+            qDebug("Wait to receive the ACK packet...");
         } else
-            qWarning("ERROR: Timeout!\n");
+            qWarning("Timeout!");
         t.start();
         while((t.elapsed() < 1000) && !sock.hasPendingDatagrams());
         //QCoreApplication::processEvents();
@@ -138,9 +138,9 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     delete []send_buffer;
     if(recv_size != (qint64)(sizeof(rbcp_header) + length)) {
         if(recv_size == -1)
-            qWarning("ERROR: No Packet Received.\n");
+            qWarning("No Packet Received.");
         else
-            qWarning("ERROR: Packet Length Error.\n");
+            qWarning("Packet Length Error.");
         return false;
     }
     quint8 *recv_buffer = new quint8[recv_size];
@@ -148,18 +148,18 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     quint16 recv_port;
     sock.readDatagram((char *)recv_buffer, recv_size, &recv_ipaddr, &recv_port);
     if((recv_ipaddr != ipaddr) || (recv_port != port)) {
-        qWarning("ERROR: Received a Packet From %s:%u, Expected %s:%u.\n",
-            recv_ipaddr.toString().toLocal8Bit().constData(), recv_port, ipaddr.toString().toLocal8Bit().constData(), port);
+        qWarning().nospace() << "Received a Packet From " << qPrintable(recv_ipaddr.toString()) << ':' << recv_port
+            << ", Expect " << qPrintable(ipaddr.toString()) << ':' << port << '.';
         delete []recv_buffer;
         return false;
     }
-    qDebug("Info: Received:\n");
+    qDebug("Received:");
     log_packet(recv_size, recv_buffer);
     rbcp_header recv_header;
     memcpy(&recv_header, recv_buffer, sizeof(rbcp_header));
     if((recv_header.type != header.type) || (recv_header.command != (header.command | 0x08)) ||
         (recv_header.id != header.id) || (recv_header.length != header.length) || (recv_header.address != header.address)) {
-        qWarning("ERROR: Received Packet Header Error.\n");
+        qWarning("Received Packet Header Error.");
         delete []recv_buffer;
         return false;
     }
@@ -167,7 +167,7 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         quint8 *recv_data = new quint8[length];
         memcpy(recv_data, recv_buffer + sizeof(rbcp_header), length);
         if(memcmp(recv_data, data, length)) {
-            qWarning("ERROR: Error ACK Packet.\n");
+            qWarning("Error ACK Packet.");
             delete []recv_data;
             delete []recv_buffer;
             return false;
@@ -182,8 +182,12 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
 
 void msg_handler(QtMsgType type, const char *msg)
 {
-    if((type == QtDebugMsg) || (type == QtWarningMsg))
-        fputs(msg, stdout);
+    QTextStream out(stdout);
+    if(type == QtDebugMsg)
+        out << "[Info]:";
+    else if(type == QtWarningMsg)
+        out << "[Warning]:";
     else
-        fputs(msg, stderr);
+        out << "[ERROR]:";
+    out << msg << endl;
 }
