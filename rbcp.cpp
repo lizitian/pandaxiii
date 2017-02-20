@@ -13,17 +13,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui.setupUi(this);
 }
 
+#define uilog(x) do { ui.output->moveCursor(QTextCursor::End); ui.output->insertPlainText(x); } while(0)
+
 void MainWindow::on_write_clicked()
 {
     quint8 data = ui.data->text().toUInt(0, 0);
     quint32 address = ui.address->text().toUInt(0, 0);
-    if(rbcp_com(QHostAddress(ui.ipaddr->text()), ui.port->text().toUInt(0, 0), RBCP_CMD_WR, 1, address, &data)) {
-        ui.output->moveCursor(QTextCursor::End);
-        ui.output->insertPlainText("OK!\n");
-    } else {
-        ui.output->moveCursor(QTextCursor::End);
-        ui.output->insertPlainText("Error!\n");
-    }
+    if(rbcp_com(QHostAddress(ui.ipaddr->text()), ui.port->text().toUInt(0, 0), RBCP_CMD_WR, 1, address, &data))
+        uilog("OK!\n");
+    else
+        uilog("Error!\n");
 }
 
 void MainWindow::on_read_clicked()
@@ -32,28 +31,26 @@ void MainWindow::on_read_clicked()
     quint32 address = ui.address->text().toUInt(0, 0);
     quint8 *data = new quint8[length];
     if(rbcp_com(QHostAddress(ui.ipaddr->text()), ui.port->text().toUInt(0, 0), RBCP_CMD_RD, length, address, data)) {
-        ui.output->moveCursor(QTextCursor::End);
-        ui.output->insertPlainText("Data:\n");
-        // to fix
-        char buffer[100];
+        uilog("Received Data:\n");
+        QString buffer;
         for(quint8 i = 0; i < length; i++) {
             if(i % 8 == 0)
-                sprintf(buffer, "[0x%08x]:%02x ", address + i, data[i]);
-            else if(i % 8 == 7)
-                sprintf(buffer, "%02x\n", data[i]);
-            else if(i % 8 == 3)
-                sprintf(buffer, "%02x - ", data[i]);
-            else
-                sprintf(buffer, "%02x ", data[i]);
-            ui.output->moveCursor(QTextCursor::End);
-            ui.output->insertPlainText(buffer);
+                buffer.sprintf("[0x%08x]:", address + i);
+            else if(i % 8 == 4)
+                buffer.append("- ");
+            buffer.append(QString().sprintf("%02x", data[i]));
+            if((++i) != length) {
+                if(i % 8 == 0) {
+                    buffer.append('\n');
+                    uilog(qPrintable(buffer));
+                } else
+                    buffer.append(' ');
+            }
         }
-        ui.output->moveCursor(QTextCursor::End);
-        ui.output->insertPlainText("\n");
-    } else {
-        ui.output->moveCursor(QTextCursor::End);
-        ui.output->insertPlainText("Error!\n");
-    }
+        buffer.append('\n');
+        uilog(qPrintable(buffer));
+    } else
+        uilog("Error!\n");
     delete []data;
 }
 
@@ -67,17 +64,19 @@ static inline void construct_packet(void *buffer, const rbcp_header *header, con
 static inline void log_packet(qint64 size, const void *buffer)
 {
     quint8 *data = (quint8 *)buffer;
-    qint64 i;
     QString line;
-    for(i = 0; i < size; i++) {
+    for(qint64 i = 0; i < size;) {
         if(i % 4 == 0)
             line.sprintf("[%03x]:", (quint32)i);
         line.append(QString().sprintf("%02x", data[i]));
-        if(i % 4 == 3)
-            qDebug() << qPrintable(line);
-        else
-            line.append(' ');
+        if((++i) != size) {
+            if(i % 4 == 0)
+                qDebug() << qPrintable(line);
+            else
+                line.append(' ');
+        }
     }
+    qDebug() << qPrintable(line);
 }
 
 bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 length, quint32 address, void *data)
