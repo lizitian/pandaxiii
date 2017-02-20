@@ -42,13 +42,13 @@ void MainWindow::on_read_clicked()
             if((++i) != length) {
                 if(i % 8 == 0) {
                     buffer.append('\n');
-                    uilog(qPrintable(buffer));
+                    uilog(buffer);
                 } else
                     buffer.append(' ');
             }
         }
         buffer.append('\n');
-        uilog(qPrintable(buffer));
+        uilog(buffer);
     } else
         uilog("Error!\n");
     delete []data;
