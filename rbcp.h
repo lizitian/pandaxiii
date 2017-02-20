@@ -26,6 +26,8 @@ private slots:
     void on_CFigPLL_clicked();
     void on_AGET_test_clicked();
     void on_StartSCA_clicked();
+    void on_TriggerEn_clicked(bool);
+    void on_CFigDAC_clicked();
 private:
     Ui::MainWindow ui;
 };

@@ -60,6 +60,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui.chthres->addItem("1101", 13);
     ui.chthres->addItem("1110", 14);
     ui.chthres->addItem("1111(max value)", 15);
+    ui.trigselec->addItem("Self Trig", 0);
+    ui.trigselec->addItem("Ext Trig", 1);
+    ui.trigselec->addItem("Hit Trig", 3);
+    ui.trigdelay->addItem("7.5us", 3);
+    ui.trigdelay->addItem("10us", 4);
+    ui.trigdelay->addItem("15us", 6);
+    ui.trigdelay->addItem("19us", 7);
+    ui.trigdelay->addItem("20us", 8);
+    ui.trigdelay->addItem("25us", 10);
+    ui.trigdelay->addItem("40us", 16);
+    ui.trigdelay->addItem("50us", 20);
+    ui.trigdelay->addItem("60us", 24);
+    ui.trigdelay->addItem("80us", 32);
+    ui.dacthres->addItem("0", 0);
+    ui.dacthres->addItem("1V", 5);
 }
 
 #define uilog(x) do { ui.output->moveCursor(QTextCursor::End); ui.output->insertPlainText(x); } while(0)
@@ -275,6 +290,57 @@ void MainWindow::on_StartSCA_clicked()
         uilog("SCA Configure Success.\n");
     else
         uilog("SCA Configure Fail.\n");
+}
+
+void MainWindow::on_TriggerEn_clicked(bool checked)
+{
+    quint8 trigselec = ui.trigselec->itemData(ui.trigselec->currentIndex()).toUInt();
+    quint8 trigdelay = ui.trigdelay->itemData(ui.trigdelay->currentIndex()).toUInt();
+    quint8 data[] = {
+        0x60, 0x06, 0x44, 0x00,
+    };
+    if(checked) {
+        data[1] = 0x0f;
+        data[2] = ((trigselec << 6) & 0xc0) | (trigdelay & 0x3f);
+    }
+    QHostAddress ipaddr(ui.ipaddr->text());
+    quint16 port = ui.port->text().toUInt(0, 0);
+    quint32 address = ui.address->text().toUInt(0, 0);
+    bool ok = true;
+    for(quint16 i = 0; i < sizeof(data); i++) {
+        ok &= rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        if(!ok)
+            break;
+    }
+    if(ok)
+        uilog("Send msb and trig Command Success.\n");
+    else
+        uilog("Send msb and trig Command Fail.\n");
+}
+
+void MainWindow::on_CFigDAC_clicked()
+{
+    quint8 dacthres = ui.dacthres->itemData(ui.dacthres->currentIndex()).toUInt() & 0x0f;
+    quint8 data[] = {
+        0x38, 0x26, 0x10, 0x00,
+        0x28, 0x80, dacthres, 0x00,
+        0x28, 0x00, dacthres, 0x00,
+      //0xc1, 0x00, 0x31, 0x10,
+      //0xc1, 0x00, 0x31, 0x00,
+    };
+    QHostAddress ipaddr(ui.ipaddr->text());
+    quint16 port = ui.port->text().toUInt(0, 0);
+    quint32 address = ui.address->text().toUInt(0, 0);
+    bool ok = true;
+    for(quint16 i = 0; i < sizeof(data); i++) {
+        ok &= rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        if(!ok)
+            break;
+    }
+    if(ok)
+        uilog("DAC Configure Success.\n");
+    else
+        uilog("DAC Configure Fail.\n");
 }
 
 static inline void construct_packet(void *buffer, const rbcp_header *header, const void *data)
