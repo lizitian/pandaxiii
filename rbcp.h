@@ -23,6 +23,7 @@ public:
 private slots:
     void on_write_clicked();
     void on_read_clicked();
+    void on_CFigPLL_clicked();
 private:
     Ui::MainWindow ui;
 };
