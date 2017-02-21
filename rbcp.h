@@ -1,7 +1,9 @@
 #ifndef RBCP_H
 #define RBCP_H
+#include <QFile>
 #include <QTime>
 #include <QtEndian>
+#include <QTcpSocket>
 #include <QUdpSocket>
 #include "ui_rbcp.h"
 #define RBCP_CMD_WR 0x80
@@ -28,7 +30,12 @@ private slots:
     void on_StartSCA_clicked();
     void on_TriggerEn_clicked(bool);
     void on_CFigDAC_clicked();
+    void on_connect_clicked();
+    void on_disconnect_clicked();
+    void tcp_disconnect();
+    void tcp_read();
 private:
     Ui::MainWindow ui;
+    QTcpSocket *tcp_sock = NULL;
 };
 #endif

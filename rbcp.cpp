@@ -343,6 +343,54 @@ void MainWindow::on_CFigDAC_clicked()
         uilog("DAC Configure Fail.\n");
 }
 
+#define uilog1(x) do { ui.output1->moveCursor(QTextCursor::End); ui.output1->insertPlainText(x); } while(0)
+
+void MainWindow::on_connect_clicked()
+{
+    tcp_sock = new QTcpSocket();
+    QHostAddress ipaddr(ui.ipaddr1->text());
+    quint16 port = ui.port1->text().toUInt(0, 0);
+    tcp_sock->connectToHost(ipaddr, port);
+    if(tcp_sock->waitForConnected(1000)) {
+        uilog1("Connected.\n");
+        connect(tcp_sock, SIGNAL(disconnected()), this, SLOT(tcp_disconnect()));
+        connect(tcp_sock, SIGNAL(readyRead()), this, SLOT(tcp_read()));
+    } else {
+        uilog1("Error.\n");
+        delete tcp_sock;
+        tcp_sock = NULL;
+    }
+}
+
+void MainWindow::on_disconnect_clicked()
+{
+    if(!tcp_sock)
+        uilog1("Error.\n");
+    tcp_sock->disconnectFromHost();
+}
+
+void MainWindow::tcp_disconnect()
+{
+    uilog1("Disconnected.\n");
+    delete tcp_sock;
+    tcp_sock = NULL;
+}
+
+void MainWindow::tcp_read()
+{
+    qint64 size = tcp_sock->bytesAvailable(), readed;
+    if(size <= 0)
+        return;
+    quint8 *data = new quint8[size];
+    readed = tcp_sock->read((char *)data, size);
+    QFile file("data.dat");
+    file.open(QIODevice::ReadWrite);
+    file.seek(file.size());
+    file.write((char *)data, readed);
+    file.close();
+    delete []data;
+}
+
 static inline void construct_packet(void *buffer, const rbcp_header *header, const void *data)
 {
     memcpy(buffer, header, sizeof(rbcp_header));

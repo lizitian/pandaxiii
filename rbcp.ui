@@ -495,6 +495,88 @@
     <attribute name="title">
      <string>Tab 2</string>
     </attribute>
+    <widget class="QLabel" name="ipaddr1label">
+     <property name="geometry">
+      <rect>
+       <x>169</x>
+       <y>35</y>
+       <width>65</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>IP Address:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ipaddr1">
+     <property name="geometry">
+      <rect>
+       <x>253</x>
+       <y>30</y>
+       <width>120</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="port1label">
+     <property name="geometry">
+      <rect>
+       <x>433</x>
+       <y>35</y>
+       <width>28</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Port:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="port1">
+     <property name="geometry">
+      <rect>
+       <x>480</x>
+       <y>30</y>
+       <width>120</width>
+       <height>30</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="connect">
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>120</y>
+       <width>88</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>connect</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="disconnect">
+     <property name="geometry">
+      <rect>
+       <x>400</x>
+       <y>120</y>
+       <width>88</width>
+       <height>34</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>disconnect</string>
+     </property>
+    </widget>
+    <widget class="QTextBrowser" name="output1">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>170</y>
+       <width>320</width>
+       <height>380</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
