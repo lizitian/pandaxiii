@@ -444,6 +444,7 @@ void TcpCom::on_disconnected()
     window->tcp_show("Disconnected.");
     window->tcp_set_connected(false);
     window->tcp_set_enabled(true);
+    file->close();
     this->deleteLater();
 }
 
