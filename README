@@ -1,2 +1,2 @@
-qmake rbcp.pro
+qmake
 make

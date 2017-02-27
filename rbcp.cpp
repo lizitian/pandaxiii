@@ -3,99 +3,26 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     MainWindow window;
-    qInstallMsgHandler(msg_handler);
     window.show();
     return app.exec();
 }
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
-{
-    ui.setupUi(this);
-    ui.samplerate->addItem("50MHz", 0);
-    ui.samplerate->addItem("25MHz", 1);
-    ui.samplerate->addItem("12.5MHz", 3);
-    ui.samplerate->addItem("10MHz", 4);
-    ui.samplerate->addItem("5MHz", 9);
-    ui.samplerate->addItem("3.75MHz", 15);
-    ui.vicm->addItem("1.25V", 0);
-    ui.vicm->addItem("1.35V", 1);
-    ui.vicm->addItem("1.55V", 2);
-    ui.vicm->addItem("1.65V", 3);
-    ui.gaincsa->addItem("120fc", 0);
-    ui.gaincsa->addItem("240fc", 1);
-    ui.gaincsa->addItem("1pc", 2);
-    ui.gaincsa->addItem("10pc", 3);
-    ui.agetthres->addItem("000", 0);
-    ui.agetthres->addItem("2%", 1);
-    ui.agetthres->addItem("4%", 2);
-    ui.agetthres->addItem("5.5%", 3);
-    ui.agetthres->addItem("7.5%(middle value)", 4);
-    ui.agetthres->addItem("9%", 5);
-    ui.agetthres->addItem("11%", 6);
-    ui.agetthres->addItem("12%(max value)", 7);
-    ui.testcap->addItem("120fF", 0);
-    ui.testcap->addItem("240fF", 1);
-    ui.testcap->addItem("1pF", 2);
-    ui.testcap->addItem("10pF", 3);
-    ui.modesel->addItem("nomal", 0);
-    ui.modesel->addItem("calibration", 1);
-    ui.modesel->addItem("test", 2);
-    ui.modesel->addItem("function", 3);
-    ui.scachannel->addItem("1-34", 5);
-    ui.scachannel->addItem("ch1", 6);
-    ui.scachannel->addItem("1-68", 7);
-    ui.chthres->addItem("0000", 0);
-    ui.chthres->addItem("0001", 1);
-    ui.chthres->addItem("0010", 2);
-    ui.chthres->addItem("0011", 3);
-    ui.chthres->addItem("0100", 4);
-    ui.chthres->addItem("0101", 5);
-    ui.chthres->addItem("0110", 6);
-    ui.chthres->addItem("0111", 7);
-    ui.chthres->addItem("1000(middle value)", 8);
-    ui.chthres->addItem("1001", 9);
-    ui.chthres->addItem("1010", 10);
-    ui.chthres->addItem("1011", 11);
-    ui.chthres->addItem("1100", 12);
-    ui.chthres->addItem("1101", 13);
-    ui.chthres->addItem("1110", 14);
-    ui.chthres->addItem("1111(max value)", 15);
-    ui.trigselec->addItem("Self Trig", 0);
-    ui.trigselec->addItem("Ext Trig", 1);
-    ui.trigselec->addItem("Hit Trig", 3);
-    ui.trigdelay->addItem("7.5us", 3);
-    ui.trigdelay->addItem("10us", 4);
-    ui.trigdelay->addItem("15us", 6);
-    ui.trigdelay->addItem("19us", 7);
-    ui.trigdelay->addItem("20us", 8);
-    ui.trigdelay->addItem("25us", 10);
-    ui.trigdelay->addItem("40us", 16);
-    ui.trigdelay->addItem("50us", 20);
-    ui.trigdelay->addItem("60us", 24);
-    ui.trigdelay->addItem("80us", 32);
-    ui.dacthres->addItem("0", 0);
-    ui.dacthres->addItem("1V", 5);
-}
-
-#define uilog(x) do { ui.output->moveCursor(QTextCursor::End); ui.output->insertPlainText(x); } while(0)
-
 void MainWindow::on_write_clicked()
 {
-    quint8 data = ui.data->text().toUInt(0, 0);
-    quint32 address = ui.address->text().toUInt(0, 0);
-    if(rbcp_com(QHostAddress(ui.ipaddr->text()), ui.port->text().toUInt(0, 0), RBCP_CMD_WR, 1, address, &data))
-        uilog("OK!\n");
+    quint8 data = rbcp_data();
+    if(rbcp_com(rbcp_ipaddr(), rbcp_port(), RBCP_CMD_WR, 1, rbcp_address(), &data))
+        rbcp_show("OK!\n");
     else
-        uilog("Error!\n");
+        rbcp_show("Error!\n");
 }
 
 void MainWindow::on_read_clicked()
 {
-    quint8 length = ui.length->text().toUInt(0, 0);
-    quint32 address = ui.address->text().toUInt(0, 0);
+    quint8 length = rbcp_length();
+    quint32 address = rbcp_address();
     quint8 *data = new quint8[length];
-    if(rbcp_com(QHostAddress(ui.ipaddr->text()), ui.port->text().toUInt(0, 0), RBCP_CMD_RD, length, address, data)) {
-        uilog("Received Data:\n");
+    if(rbcp_com(rbcp_ipaddr(), rbcp_port(), RBCP_CMD_RD, length, address, data)) {
+        rbcp_show("Received Data:\n");
         QString buffer;
         for(quint8 i = 0; i < length; i++) {
             if(i % 8 == 0)
@@ -106,22 +33,22 @@ void MainWindow::on_read_clicked()
             if((++i) != length) {
                 if(i % 8 == 0) {
                     buffer.append('\n');
-                    uilog(buffer);
+                    rbcp_show(buffer);
                 } else
                     buffer.append(' ');
             }
         }
         buffer.append('\n');
-        uilog(buffer);
+        rbcp_show(buffer);
     } else
-        uilog("Error!\n");
+        rbcp_show("Error!\n");
     delete []data;
 }
 
 void MainWindow::on_CFigPLL_clicked()
 {
-    quint8 sample_rate = ui.samplerate->itemData(ui.samplerate->currentIndex()).toUInt();
-    quint8 dat1 = (sample_rate & 0x0f) | ((sample_rate & 0x0f) << 4);
+    quint8 samplerate = rbcp_samplerate() & 0x0f;
+    quint8 dat1 = samplerate | (samplerate << 4);
     quint8 data[] = {
         0x19, 0x00, 0x18, 0x06,
         0x11, 0x00, 0x18, 0x06,
@@ -160,34 +87,34 @@ void MainWindow::on_CFigPLL_clicked()
         0x12, 0x00, 0x00, 0x00,
         0x10, 0x00, 0x00, 0x00,
     };
-    QHostAddress ipaddr(ui.ipaddr->text());
-    quint16 port = ui.port->text().toUInt(0, 0);
-    quint32 address = ui.address->text().toUInt(0, 0);
-    bool ok = true;
+    QHostAddress ipaddr = rbcp_ipaddr();
+    quint16 port = rbcp_port();
+    quint32 address = rbcp_address();
+    bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok &= rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
     if(ok)
-        uilog("PLL Configure Success.\n");
+        rbcp_show("PLL Configure Success.\n");
     else
-        uilog("PLL Configure Fail.\n");
+        rbcp_show("PLL Configure Fail.\n");
 }
 
 void MainWindow::on_AGET_test_clicked()
 {
-    quint8 modesel = ui.modesel->itemData(ui.modesel->currentIndex()).toUInt();
-    quint8 testcap = ui.testcap->itemData(ui.testcap->currentIndex()).toUInt();
-    quint8 vicm = ui.vicm->itemData(ui.vicm->currentIndex()).toUInt();
-    quint8 agetthres = ui.agetthres->itemData(ui.agetthres->currentIndex()).toUInt();
-    quint8 gaincsa = ui.gaincsa->itemData(ui.gaincsa->currentIndex()).toUInt();
-    quint8 chthres = ui.chthres->itemData(ui.chthres->currentIndex()).toUInt();
-    quint8 dat1 = (gaincsa & 0x03) | ((gaincsa & 0x03) << 2) | ((gaincsa & 0x03) << 4) | ((gaincsa & 0x03) << 6);
-    quint8 dat2 = (chthres & 0x0f) | ((chthres & 0x0f) << 4);
+    quint8 modesel = rbcp_modesel() & 0x03;
+    quint8 testcap = rbcp_testcap() & 0x03;
+    quint8 vicm = rbcp_vicm() & 0x03;
+    quint8 agetthres = rbcp_agetthres() & 0x07;
+    quint8 gaincsa = rbcp_gaincsa() & 0x03;
+    quint8 chthres = rbcp_chthres() & 0x0f;
+    quint8 dat1 = gaincsa | (gaincsa << 2) | (gaincsa << 4) | (gaincsa << 6);
+    quint8 dat2 = chthres | (chthres << 4);
     quint8 data[] = {
-        0x40, 0x01, (quint8)(modesel >> 1), (quint8)(((testcap & 0x03) << 1) | ((modesel & 0x03) << 7) | 0x78),
-        0x43, 0x01, 0x00, (quint8)(((vicm & 0x03) << 1) | ((agetthres & 0x07) << 3)),
+        0x40, 0x01, (quint8)(modesel >> 1), (quint8)((testcap << 1) | (modesel << 7) | 0x78),
+        0x43, 0x01, 0x00, (quint8)((vicm << 1) | (agetthres << 3)),
         0x40, 0x00, 0x00, 0x00,
         0x42, 0x00, 0x00, 0x00,
         0x44, 0x00, 0x00, 0x00,
@@ -256,71 +183,69 @@ void MainWindow::on_AGET_test_clicked()
         0x41, 0x0a, 0x00, 0x00,
         0x40, 0x40, 0x00, 0x00,
     };
-    QHostAddress ipaddr(ui.ipaddr->text());
-    quint16 port = ui.port->text().toUInt(0, 0);
-    quint32 address = ui.address->text().toUInt(0, 0);
-    bool ok = true;
+    QHostAddress ipaddr = rbcp_ipaddr();
+    quint16 port = rbcp_port();
+    quint32 address = rbcp_address();
+    bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok &= rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
     if(ok)
-        uilog("AGET test mode Configure Success.\n");
+        rbcp_show("AGET test mode Configure Success.\n");
     else
-        uilog("AGET test mode Configure Fail.\n");
+        rbcp_show("AGET test mode Configure Fail.\n");
 }
 
 void MainWindow::on_StartSCA_clicked()
 {
-    quint8 scachannel = ui.scachannel->itemData(ui.scachannel->currentIndex()).toUInt();
+    quint8 scachannel = rbcp_scachannel() & 0x07;
     quint8 data[] = {
-        (quint8)(((scachannel & 0x07) << 1) | 0x51), 0x08, 0x00, 0x00,
+        (quint8)((scachannel << 1) | 0x51), 0x08, 0x00, 0x00,
     };
-    QHostAddress ipaddr(ui.ipaddr->text());
-    quint16 port = ui.port->text().toUInt(0, 0);
-    quint32 address = ui.address->text().toUInt(0, 0);
-    bool ok = true;
+    QHostAddress ipaddr = rbcp_ipaddr();
+    quint16 port = rbcp_port();
+    quint32 address = rbcp_address();
+    bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok &= rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
     if(ok)
-        uilog("SCA Configure Success.\n");
+        rbcp_show("SCA Configure Success.\n");
     else
-        uilog("SCA Configure Fail.\n");
+        rbcp_show("SCA Configure Fail.\n");
 }
 
 void MainWindow::on_TriggerEn_clicked(bool checked)
 {
-    quint8 trigselec = ui.trigselec->itemData(ui.trigselec->currentIndex()).toUInt();
-    quint8 trigdelay = ui.trigdelay->itemData(ui.trigdelay->currentIndex()).toUInt();
     quint8 data[] = {
         0x60, 0x06, 0x44, 0x00,
     };
     if(checked) {
         data[1] = 0x0f;
-        data[2] = ((trigselec << 6) & 0xc0) | (trigdelay & 0x3f);
+        data[2] = ((rbcp_trigselec() << 6) & 0xc0) | (rbcp_trigdelay() & 0x3f);
     }
-    QHostAddress ipaddr(ui.ipaddr->text());
-    quint16 port = ui.port->text().toUInt(0, 0);
-    quint32 address = ui.address->text().toUInt(0, 0);
-    bool ok = true;
+    QHostAddress ipaddr = rbcp_ipaddr();
+    quint16 port = rbcp_port();
+    quint32 address = rbcp_address();
+    bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok &= rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
     if(ok)
-        uilog("Send msb and trig Command Success.\n");
+        rbcp_show("Send msb and trig Command Success.\n");
     else
-        uilog("Send msb and trig Command Fail.\n");
+        rbcp_show("Send msb and trig Command Fail.\n");
 }
 
 void MainWindow::on_CFigDAC_clicked()
 {
-    quint8 dacthres = ui.dacthres->itemData(ui.dacthres->currentIndex()).toUInt() & 0x0f;
+    quint8 dacthres = rbcp_dacthres() & 0x0f;
     quint8 data[] = {
         0x38, 0x26, 0x10, 0x00,
         0x28, 0x80, dacthres, 0x00,
@@ -328,67 +253,37 @@ void MainWindow::on_CFigDAC_clicked()
       //0xc1, 0x00, 0x31, 0x10,
       //0xc1, 0x00, 0x31, 0x00,
     };
-    QHostAddress ipaddr(ui.ipaddr->text());
-    quint16 port = ui.port->text().toUInt(0, 0);
-    quint32 address = ui.address->text().toUInt(0, 0);
-    bool ok = true;
+    QHostAddress ipaddr = rbcp_ipaddr();
+    quint16 port = rbcp_port();
+    quint32 address = rbcp_address();
+    bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok &= rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
     if(ok)
-        uilog("DAC Configure Success.\n");
+        rbcp_show("DAC Configure Success.\n");
     else
-        uilog("DAC Configure Fail.\n");
+        rbcp_show("DAC Configure Fail.\n");
 }
 
-#define uilog1(x) do { ui.output1->moveCursor(QTextCursor::End); ui.output1->insertPlainText(x); } while(0)
-
-void MainWindow::on_connect_clicked()
+void MainWindow::on_connect_clicked(bool checked)
 {
-    tcp_sock = new QTcpSocket();
-    QHostAddress ipaddr(ui.ipaddr1->text());
-    quint16 port = ui.port1->text().toUInt(0, 0);
-    tcp_sock->connectToHost(ipaddr, port);
-    if(tcp_sock->waitForConnected(1000)) {
-        uilog1("Connected.\n");
-        connect(tcp_sock, SIGNAL(disconnected()), this, SLOT(tcp_disconnect()));
-        connect(tcp_sock, SIGNAL(readyRead()), this, SLOT(tcp_read()));
-    } else {
-        uilog1("Error.\n");
-        delete tcp_sock;
-        tcp_sock = NULL;
-    }
-}
-
-void MainWindow::on_disconnect_clicked()
-{
-    if(!tcp_sock)
-        uilog1("Error.\n");
-    tcp_sock->disconnectFromHost();
-}
-
-void MainWindow::tcp_disconnect()
-{
-    uilog1("Disconnected.\n");
-    delete tcp_sock;
-    tcp_sock = NULL;
-}
-
-void MainWindow::tcp_read()
-{
-    qint64 size = tcp_sock->bytesAvailable(), readed;
-    if(size <= 0)
+    static TcpCom *sock = NULL;
+    if((sock != NULL) == checked) {
+        qWarning("Internal Error - Socket Status Error.");
+        tcp_show("Error.");
         return;
-    quint8 *data = new quint8[size];
-    readed = tcp_sock->read((char *)data, size);
-    QFile file("data.dat");
-    file.open(QIODevice::ReadWrite);
-    file.seek(file.size());
-    file.write((char *)data, readed);
-    file.close();
-    delete []data;
+    }
+    tcp_set_enabled(false);
+    if(checked) {
+        sock = new TcpCom(this);
+        sock->connectToHost(tcp_ipaddr(), tcp_port());
+    } else {
+        sock->disconnectFromHost();
+        sock = NULL;
+    }
 }
 
 static inline void construct_packet(void *buffer, const rbcp_header *header, const void *data)
@@ -516,14 +411,39 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     return true;
 }
 
-void msg_handler(QtMsgType type, const char *msg)
+TcpCom::TcpCom(MainWindow *window, QObject *parent) : QTcpSocket(parent)
 {
-    QTextStream out(stdout);
-    if(type == QtDebugMsg)
-        out << "[Info]:";
-    else if(type == QtWarningMsg)
-        out << "[Warning]:";
-    else
-        out << "[ERROR]:";
-    out << msg << endl;
+    this->window = window;
+    connect(this, SIGNAL(connected()), this, SLOT(on_connected()));
+    connect(this, SIGNAL(disconnected()), this, SLOT(on_disconnected()));
+    connect(this, SIGNAL(readyRead()), this, SLOT(on_readyRead()));
+}
+
+void TcpCom::on_connected()
+{
+    window->tcp_show("Connected.");
+    window->tcp_set_connected(true);
+    window->tcp_set_enabled(true);
+    file = new QFile(QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz'.dat'"));
+    file->open(QIODevice::WriteOnly);
+}
+
+void TcpCom::on_disconnected()
+{
+    window->tcp_show("Disconnected.");
+    window->tcp_set_connected(false);
+    window->tcp_set_enabled(true);
+    delete file;
+    this->deleteLater();
+}
+
+void TcpCom::on_readyRead()
+{
+    qint64 size = bytesAvailable(), readed;
+    if(size <= 0)
+        return;
+    quint8 *data = new quint8[size];
+    readed = read((char *)data, size);
+    file->write((char *)data, readed);
+    delete []data;
 }

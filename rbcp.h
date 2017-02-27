@@ -1,11 +1,50 @@
 #ifndef RBCP_H
 #define RBCP_H
-#include <QFile>
-#include <QTime>
-#include <QtEndian>
-#include <QTcpSocket>
-#include <QUdpSocket>
-#include "ui_rbcp.h"
+#include <QtGui>
+#include <QtNetwork>
+namespace Ui {
+    class MainWindow;
+}
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+public:
+    MainWindow(QWidget *parent = 0);
+    virtual ~MainWindow();
+    void tcp_show(const QString &);
+    void tcp_set_enabled(bool);
+    void tcp_set_connected(bool);
+private slots:
+    void on_write_clicked();
+    void on_read_clicked();
+    void on_CFigPLL_clicked();
+    void on_AGET_test_clicked();
+    void on_StartSCA_clicked();
+    void on_TriggerEn_clicked(bool);
+    void on_CFigDAC_clicked();
+    void on_connect_clicked(bool);
+private:
+    Ui::MainWindow *ui;
+    QHostAddress rbcp_ipaddr();
+    quint16 rbcp_port();
+    quint32 rbcp_address();
+    quint8 rbcp_data();
+    quint8 rbcp_length();
+    quint8 rbcp_samplerate();
+    quint8 rbcp_vicm();
+    quint8 rbcp_gaincsa();
+    quint8 rbcp_agetthres();
+    quint8 rbcp_testcap();
+    quint8 rbcp_modesel();
+    quint8 rbcp_scachannel();
+    quint8 rbcp_chthres();
+    quint8 rbcp_trigselec();
+    quint8 rbcp_trigdelay();
+    quint8 rbcp_dacthres();
+    void rbcp_show(const QString &);
+    QHostAddress tcp_ipaddr();
+    quint16 tcp_port();
+};
 #define RBCP_CMD_WR 0x80
 #define RBCP_CMD_RD 0xc0
 typedef struct {
@@ -16,26 +55,17 @@ typedef struct {
     quint32 address;
 } rbcp_header;
 bool rbcp_com(const QHostAddress &, quint16, quint8, quint8, quint32, void *);
-void msg_handler(QtMsgType, const char *);
-class MainWindow : public QMainWindow
+class TcpCom : public QTcpSocket
 {
     Q_OBJECT
 public:
-    MainWindow(QWidget *parent = 0);
+    TcpCom(MainWindow *, QObject *parent = 0);
 private slots:
-    void on_write_clicked();
-    void on_read_clicked();
-    void on_CFigPLL_clicked();
-    void on_AGET_test_clicked();
-    void on_StartSCA_clicked();
-    void on_TriggerEn_clicked(bool);
-    void on_CFigDAC_clicked();
-    void on_connect_clicked();
-    void on_disconnect_clicked();
-    void tcp_disconnect();
-    void tcp_read();
+    void on_connected();
+    void on_disconnected();
+    void on_readyRead();
 private:
-    Ui::MainWindow ui;
-    QTcpSocket *tcp_sock = NULL;
+    MainWindow *window;
+    QFile *file;
 };
 #endif

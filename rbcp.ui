@@ -14,11 +14,11 @@
    <string>rbcp</string>
   </property>
   <widget class="QTabWidget" name="MainWidget">
-   <widget class="QWidget" name="Tab1">
+   <widget class="QWidget" name="rbcp">
     <attribute name="title">
-     <string>Tab 1</string>
+     <string>RBCP</string>
     </attribute>
-    <widget class="QLabel" name="ipaddrlabel">
+    <widget class="QLabel" name="rbcpipaddrlabel">
      <property name="geometry">
       <rect>
        <x>60</x>
@@ -31,7 +31,7 @@
       <string>IP Address:</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="ipaddr">
+    <widget class="QLineEdit" name="rbcpipaddr">
      <property name="geometry">
       <rect>
        <x>144</x>
@@ -40,8 +40,11 @@
        <height>30</height>
       </rect>
      </property>
+     <property name="text">
+      <string>192.168.10.16</string>
+     </property>
     </widget>
-    <widget class="QLabel" name="portlabel">
+    <widget class="QLabel" name="rbcpportlabel">
      <property name="geometry">
       <rect>
        <x>324</x>
@@ -54,7 +57,7 @@
       <string>Port:</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="port">
+    <widget class="QLineEdit" name="rbcpport">
      <property name="geometry">
       <rect>
        <x>371</x>
@@ -62,6 +65,9 @@
        <width>120</width>
        <height>30</height>
       </rect>
+     </property>
+     <property name="text">
+      <string>4660</string>
      </property>
     </widget>
     <widget class="QLabel" name="addresslabel">
@@ -491,15 +497,15 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="Tab2">
+   <widget class="QWidget" name="tcp">
     <attribute name="title">
-     <string>Tab 2</string>
+     <string>TCP</string>
     </attribute>
-    <widget class="QLabel" name="ipaddr1label">
+    <widget class="QLabel" name="tcpipaddrlabel">
      <property name="geometry">
       <rect>
-       <x>169</x>
-       <y>35</y>
+       <x>46</x>
+       <y>20</y>
        <width>65</width>
        <height>20</height>
       </rect>
@@ -508,21 +514,24 @@
       <string>IP Address:</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="ipaddr1">
+    <widget class="QLineEdit" name="tcpipaddr">
      <property name="geometry">
       <rect>
-       <x>253</x>
-       <y>30</y>
+       <x>130</x>
+       <y>15</y>
        <width>120</width>
        <height>30</height>
       </rect>
      </property>
+     <property name="text">
+      <string>192.168.10.16</string>
+     </property>
     </widget>
-    <widget class="QLabel" name="port1label">
+    <widget class="QLabel" name="tcpportlabel">
      <property name="geometry">
       <rect>
-       <x>433</x>
-       <y>35</y>
+       <x>273</x>
+       <y>20</y>
        <width>28</width>
        <height>20</height>
       </rect>
@@ -531,50 +540,46 @@
       <string>Port:</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="port1">
+    <widget class="QLineEdit" name="tcpport">
      <property name="geometry">
       <rect>
-       <x>480</x>
-       <y>30</y>
+       <x>320</x>
+       <y>15</y>
        <width>120</width>
        <height>30</height>
       </rect>
+     </property>
+     <property name="text">
+      <string>24</string>
      </property>
     </widget>
     <widget class="QPushButton" name="connect">
      <property name="geometry">
       <rect>
-       <x>230</x>
-       <y>120</y>
-       <width>88</width>
-       <height>34</height>
+       <x>480</x>
+       <y>15</y>
+       <width>100</width>
+       <height>30</height>
       </rect>
      </property>
      <property name="text">
       <string>connect</string>
      </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
     </widget>
-    <widget class="QPushButton" name="disconnect">
+    <widget class="QLabel" name="status">
      <property name="geometry">
       <rect>
-       <x>400</x>
-       <y>120</y>
-       <width>88</width>
-       <height>34</height>
+       <x>610</x>
+       <y>20</y>
+       <width>140</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="text">
-      <string>disconnect</string>
-     </property>
-    </widget>
-    <widget class="QTextBrowser" name="output1">
-     <property name="geometry">
-      <rect>
-       <x>220</x>
-       <y>170</y>
-       <width>320</width>
-       <height>380</height>
-      </rect>
+      <string>Status.</string>
      </property>
     </widget>
    </widget>
