@@ -60,6 +60,7 @@ class TcpCom : public QTcpSocket
     Q_OBJECT
 public:
     TcpCom(MainWindow *, QObject *parent = 0);
+    virtual ~TcpCom();
 private slots:
     void on_connected();
     void on_disconnected();
