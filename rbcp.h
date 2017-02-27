@@ -65,9 +65,11 @@ private slots:
     void on_disconnected();
     void on_readyRead();
 private:
+    static const qint64 bufsize = 1024 * 1024;
     MainWindow *window;
     QFile *file;
     QTime t;
     qint64 stat;
+    quint8 *data;
 };
 #endif

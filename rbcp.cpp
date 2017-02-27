@@ -418,6 +418,15 @@ TcpCom::TcpCom(MainWindow *window, QObject *parent) : QTcpSocket(parent)
     connect(this, SIGNAL(disconnected()), this, SLOT(on_disconnected()));
     connect(this, SIGNAL(readyRead()), this, SLOT(on_readyRead()));
     stat = 0;
+    file = NULL;
+    data = new quint8[bufsize];
+}
+
+TcpCom::~TcpCom()
+{
+    delete []data;
+    if(file != NULL)
+        delete file;
 }
 
 void TcpCom::on_connected()
@@ -435,21 +444,25 @@ void TcpCom::on_disconnected()
     window->tcp_show("Disconnected.");
     window->tcp_set_connected(false);
     window->tcp_set_enabled(true);
-    delete file;
     this->deleteLater();
 }
 
 void TcpCom::on_readyRead()
 {
     qint64 size = bytesAvailable(), readed;
-    if(size <= 0)
+    if(size <= 0) {
+        qWarning("No Data to Read.");
         return;
-    quint8 *data = new quint8[size];
+    }
+    quint8 *data = this->data;
+    if(size > bufsize)
+        data = new quint8[size];
     readed = read((char *)data, size);
     if(readed != size)
         qWarning("Data Length Mismatch!");
     file->write((char *)data, readed);
-    delete []data;
+    if(size > bufsize)
+        delete []data;
     stat += readed;
     if(t.elapsed() > 1000) {
         window->tcp_show(QString("Speed: %1 Mbps").arg((double)stat * 8000 / t.elapsed() / 1024 / 1024));
