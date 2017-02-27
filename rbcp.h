@@ -67,5 +67,7 @@ private slots:
 private:
     MainWindow *window;
     QFile *file;
+    QTime t;
+    qint64 stat;
 };
 #endif

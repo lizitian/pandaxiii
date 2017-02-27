@@ -417,6 +417,7 @@ TcpCom::TcpCom(MainWindow *window, QObject *parent) : QTcpSocket(parent)
     connect(this, SIGNAL(connected()), this, SLOT(on_connected()));
     connect(this, SIGNAL(disconnected()), this, SLOT(on_disconnected()));
     connect(this, SIGNAL(readyRead()), this, SLOT(on_readyRead()));
+    stat = 0;
 }
 
 void TcpCom::on_connected()
@@ -426,6 +427,7 @@ void TcpCom::on_connected()
     window->tcp_set_enabled(true);
     file = new QFile(QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz'.dat'"));
     file->open(QIODevice::WriteOnly);
+    t.start();
 }
 
 void TcpCom::on_disconnected()
@@ -444,6 +446,14 @@ void TcpCom::on_readyRead()
         return;
     quint8 *data = new quint8[size];
     readed = read((char *)data, size);
+    if(readed != size)
+        qWarning("Data Length Mismatch!");
     file->write((char *)data, readed);
     delete []data;
+    stat += readed;
+    if(t.elapsed() > 1000) {
+        window->tcp_show(QString("Speed: %1 Mbps").arg((double)stat * 8000 / t.elapsed() / 1024 / 1024));
+        stat = 0;
+        t.restart();
+    }
 }
