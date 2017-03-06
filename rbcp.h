@@ -23,6 +23,7 @@ private slots:
     void on_TriggerEn_clicked(bool);
     void on_CFigDAC_clicked();
     void on_connect_clicked(bool);
+    void on_draw_clicked();
 private:
     Ui::MainWindow *ui;
     QHostAddress rbcp_ipaddr();
@@ -44,6 +45,8 @@ private:
     void rbcp_show(const QString &);
     QHostAddress tcp_ipaddr();
     quint16 tcp_port();
+    void tcp_canvas_set_picture(const QPicture &);
+    qreal tcp_canvas_get_aspect_ratio();
 };
 #define RBCP_CMD_WR 0x80
 #define RBCP_CMD_RD 0xc0

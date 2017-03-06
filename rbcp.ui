@@ -582,6 +582,29 @@
       <string>Status.</string>
      </property>
     </widget>
+    <widget class="QPushButton" name="draw">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>80</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>draw</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="canvas">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>150</y>
+       <width>680</width>
+       <height>350</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>

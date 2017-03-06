@@ -286,6 +286,64 @@ void MainWindow::on_connect_clicked(bool checked)
     }
 }
 
+static QPicture background_picture(qreal aspect_ratio)
+{
+    QPicture picture;
+    QPainter painter;
+    qint16 h = 40, v = h * aspect_ratio;
+    painter.begin(&picture);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::darkCyan);
+    painter.drawRect(0, 0, 1, 1);
+    painter.setPen(Qt::black);
+    painter.setBrush(Qt::NoBrush);
+    for(qint16 i = 0; i <= h; i++)
+        painter.drawLine(QPointF(0, (qreal)i / h), QPointF(1, (qreal)i / h));
+    for(qint16 i = 0; i <= v; i++)
+        painter.drawLine(QPointF((qreal)i / v, 0), QPointF((qreal)i / v, 1));
+    painter.end();
+    return picture;
+}
+
+void MainWindow::on_draw_clicked()
+{
+    QPicture picture;
+    QPainter painter;
+    QPainterPath path;
+    QFile file("data.dat");
+    quint16 data;
+    qint64 readed, size;
+    file.open(QIODevice::ReadOnly);
+    size = file.size() / 2 - 1;
+    if(size <= 0) {
+        qWarning("File too small.");
+        file.close();
+        return;
+    }
+    for(qint64 i = 0; i <= size; i++) {
+        readed = file.read((char *)&data, 2);
+        if(readed != 2) {
+            qWarning("Read file error.");
+            file.close();
+            return;
+        }
+        if(i == 0)
+            path.moveTo(0, (qreal)(0xffff - qFromBigEndian(data)) / 0xffff);
+        else
+            path.lineTo((qreal)i / size, (qreal)(0xffff - qFromBigEndian(data)) / 0xffff);
+    }
+    file.close();
+    painter.begin(&picture);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.drawPicture(0, 0, background_picture(tcp_canvas_get_aspect_ratio()));
+    painter.setPen(QPen(Qt::green, 0.005));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawPath(path);
+    painter.end();
+    tcp_canvas_set_picture(picture);
+}
+
 static inline void construct_packet(void *buffer, const rbcp_header *header, const void *data)
 {
     memcpy(buffer, header, sizeof(rbcp_header));

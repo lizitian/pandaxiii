@@ -4,6 +4,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     ui = new Ui::MainWindow;
     ui->setupUi(this);
+    ui->canvas->setScaledContents(true);
     ui->samplerate->addItem("50MHz", 0);
     ui->samplerate->addItem("25MHz", 1);
     ui->samplerate->addItem("12.5MHz", 3);
@@ -169,6 +170,16 @@ QHostAddress MainWindow::tcp_ipaddr()
 quint16 MainWindow::tcp_port()
 {
     return ui->tcpport->text().toUInt(0, 0);
+}
+
+void MainWindow::tcp_canvas_set_picture(const QPicture &picture)
+{
+    ui->canvas->setPicture(picture);
+}
+
+qreal MainWindow::tcp_canvas_get_aspect_ratio()
+{
+    return (qreal)ui->canvas->width() / ui->canvas->height();
 }
 
 void MainWindow::tcp_show(const QString &text)
