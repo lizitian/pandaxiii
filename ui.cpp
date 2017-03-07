@@ -91,9 +91,9 @@ quint32 MainWindow::rbcp_address()
     return ui->address->text().toUInt(0, 0);
 }
 
-quint8 MainWindow::rbcp_data()
+QString MainWindow::rbcp_data()
 {
-    return ui->data->text().toUInt(0, 0);
+    return ui->data->text();
 }
 
 quint8 MainWindow::rbcp_length()

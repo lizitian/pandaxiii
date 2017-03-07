@@ -9,11 +9,24 @@ int main(int argc, char *argv[])
 
 void MainWindow::on_write_clicked()
 {
-    quint8 data = rbcp_data();
-    if(rbcp_com(rbcp_ipaddr(), rbcp_port(), RBCP_CMD_WR, 1, rbcp_address(), &data))
-        rbcp_show("OK!\n");
-    else
+    QString data_str = rbcp_data();
+    QRegExp regex("0[xX][0-9a-fA-F]+");
+    if(data_str.size() <= 2 || !regex.exactMatch(data_str)) {
+        qWarning("Data Error.");
         rbcp_show("Error!\n");
+        return;
+    }
+    if(data_str.size() % 2)
+        data_str.insert(2, '0');
+    for(qint64 i = 1; i < data_str.size() / 2; i++) {
+        quint8 data = data_str.mid(i * 2, 2).toUInt(0, 16);
+        if(!rbcp_com(rbcp_ipaddr(), rbcp_port(), RBCP_CMD_WR, 1, rbcp_address(), &data)) {
+            qWarning("Send Data Error.");
+            rbcp_show("Error!\n");
+            return;
+        }
+    }
+    rbcp_show("OK!\n");
 }
 
 void MainWindow::on_read_clicked()
@@ -316,6 +329,8 @@ void MainWindow::on_draw_clicked()
     qint64 readed, size;
     file.open(QIODevice::ReadOnly);
     size = file.size() / 2 - 1;
+    if(size > 100000)
+        size = 100000;
     if(size <= 0) {
         qWarning("File too small.");
         file.close();

@@ -29,7 +29,7 @@ private:
     QHostAddress rbcp_ipaddr();
     quint16 rbcp_port();
     quint32 rbcp_address();
-    quint8 rbcp_data();
+    QString rbcp_data();
     quint8 rbcp_length();
     quint8 rbcp_samplerate();
     quint8 rbcp_vicm();
