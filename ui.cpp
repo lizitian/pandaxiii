@@ -4,6 +4,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     ui = new Ui::MainWindow;
     ui->setupUi(this);
+    setFixedSize(size());
     ui->canvas->setScaledContents(true);
     ui->samplerate->addItem("50MHz", 0);
     ui->samplerate->addItem("25MHz", 1);
@@ -69,6 +70,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->trigdelay->addItem("80us", 32);
     ui->dacthres->addItem("0", 0);
     ui->dacthres->addItem("1V", 5);
+    ui->chip->addItem("Chip 1", 1);
+    ui->chip->addItem("Chip 2", 2);
 }
 
 MainWindow::~MainWindow()
@@ -156,12 +159,6 @@ quint8 MainWindow::rbcp_dacthres()
     return ui->dacthres->itemData(ui->dacthres->currentIndex()).toUInt();
 }
 
-void MainWindow::rbcp_show(const QString &text)
-{
-    ui->output->moveCursor(QTextCursor::End);
-    ui->output->insertPlainText(text);
-}
-
 QHostAddress MainWindow::tcp_ipaddr()
 {
     return QHostAddress(ui->tcpipaddr->text());
@@ -172,6 +169,16 @@ quint16 MainWindow::tcp_port()
     return ui->tcpport->text().toUInt(0, 0);
 }
 
+qint64 MainWindow::tcp_chip()
+{
+    return ui->chip->itemData(ui->chip->currentIndex()).toInt();
+}
+
+qint64 MainWindow::tcp_channel()
+{
+    return ui->channel->text().toUInt(0, 0);
+}
+
 void MainWindow::tcp_canvas_set_picture(const QPicture &picture)
 {
     ui->canvas->setPicture(picture);
@@ -180,11 +187,6 @@ void MainWindow::tcp_canvas_set_picture(const QPicture &picture)
 qreal MainWindow::tcp_canvas_get_aspect_ratio()
 {
     return (qreal)ui->canvas->width() / ui->canvas->height();
-}
-
-void MainWindow::tcp_show(const QString &text)
-{
-    ui->status->setText(text);
 }
 
 void MainWindow::tcp_set_enabled(bool enabled)

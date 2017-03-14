@@ -13,7 +13,7 @@ void MainWindow::on_write_clicked()
     QRegExp regex("0[xX][0-9a-fA-F]+");
     if(data_str.size() <= 2 || !regex.exactMatch(data_str)) {
         qWarning("Data Error.");
-        rbcp_show("Error!\n");
+        statusBar()->showMessage("Data Error!");
         return;
     }
     if(data_str.size() % 2)
@@ -22,11 +22,11 @@ void MainWindow::on_write_clicked()
         quint8 data = data_str.mid(i * 2, 2).toUInt(0, 16);
         if(!rbcp_com(rbcp_ipaddr(), rbcp_port(), RBCP_CMD_WR, 1, rbcp_address(), &data)) {
             qWarning("Send Data Error.");
-            rbcp_show("Error!\n");
+            statusBar()->showMessage("Send Data Error!");
             return;
         }
     }
-    rbcp_show("OK!\n");
+    statusBar()->showMessage("Send Data OK.");
 }
 
 void MainWindow::on_read_clicked()
@@ -35,26 +35,16 @@ void MainWindow::on_read_clicked()
     quint32 address = rbcp_address();
     quint8 *data = new quint8[length];
     if(rbcp_com(rbcp_ipaddr(), rbcp_port(), RBCP_CMD_RD, length, address, data)) {
-        rbcp_show("Received Data:\n");
         QString buffer;
+        buffer.sprintf("Received Data: [0x%08x]:", address);
         for(quint8 i = 0; i < length; i++) {
-            if(i % 8 == 0)
-                buffer.sprintf("[0x%08x]:", address + i);
-            else if(i % 8 == 4)
+            if((i % 4 == 0) && (i != 0))
                 buffer.append("- ");
-            buffer.append(QString().sprintf("%02x", data[i]));
-            if((++i) != length) {
-                if(i % 8 == 0) {
-                    buffer.append('\n');
-                    rbcp_show(buffer);
-                } else
-                    buffer.append(' ');
-            }
+            buffer.append(QString().sprintf("%02x ", data[i]));
         }
-        buffer.append('\n');
-        rbcp_show(buffer);
+        statusBar()->showMessage(buffer);
     } else
-        rbcp_show("Error!\n");
+        statusBar()->showMessage("Error!");
     delete []data;
 }
 
@@ -110,9 +100,9 @@ void MainWindow::on_CFigPLL_clicked()
             break;
     }
     if(ok)
-        rbcp_show("PLL Configure Success.\n");
+        statusBar()->showMessage("PLL Configure Success.");
     else
-        rbcp_show("PLL Configure Fail.\n");
+        statusBar()->showMessage("PLL Configure Fail.");
 }
 
 void MainWindow::on_AGET_test_clicked()
@@ -206,9 +196,9 @@ void MainWindow::on_AGET_test_clicked()
             break;
     }
     if(ok)
-        rbcp_show("AGET test mode Configure Success.\n");
+        statusBar()->showMessage("AGET test mode Configure Success.");
     else
-        rbcp_show("AGET test mode Configure Fail.\n");
+        statusBar()->showMessage("AGET test mode Configure Fail.");
 }
 
 void MainWindow::on_StartSCA_clicked()
@@ -227,9 +217,9 @@ void MainWindow::on_StartSCA_clicked()
             break;
     }
     if(ok)
-        rbcp_show("SCA Configure Success.\n");
+        statusBar()->showMessage("SCA Configure Success.");
     else
-        rbcp_show("SCA Configure Fail.\n");
+        statusBar()->showMessage("SCA Configure Fail.");
 }
 
 void MainWindow::on_TriggerEn_clicked(bool checked)
@@ -251,9 +241,9 @@ void MainWindow::on_TriggerEn_clicked(bool checked)
             break;
     }
     if(ok)
-        rbcp_show("Send msb and trig Command Success.\n");
+        statusBar()->showMessage("Send msb and trig Command Success.");
     else
-        rbcp_show("Send msb and trig Command Fail.\n");
+        statusBar()->showMessage("Send msb and trig Command Fail.");
 }
 
 void MainWindow::on_CFigDAC_clicked()
@@ -276,9 +266,9 @@ void MainWindow::on_CFigDAC_clicked()
             break;
     }
     if(ok)
-        rbcp_show("DAC Configure Success.\n");
+        statusBar()->showMessage("DAC Configure Success.");
     else
-        rbcp_show("DAC Configure Fail.\n");
+        statusBar()->showMessage("DAC Configure Fail.");
 }
 
 void MainWindow::on_connect_clicked(bool checked)
@@ -286,7 +276,7 @@ void MainWindow::on_connect_clicked(bool checked)
     static TcpCom *sock = NULL;
     if((sock != NULL) == checked) {
         qWarning("Internal Error - Socket Status Error.");
-        tcp_show("Error.");
+        statusBar()->showMessage("Connect Error.");
         return;
     }
     tcp_set_enabled(false);
@@ -303,7 +293,7 @@ static QPicture background_picture(qreal aspect_ratio)
 {
     QPicture picture;
     QPainter painter;
-    qint16 h = 40, v = h * aspect_ratio;
+    qint16 h = 30, v = h * aspect_ratio;
     painter.begin(&picture);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::NoPen);
@@ -324,31 +314,14 @@ void MainWindow::on_draw_clicked()
     QPicture picture;
     QPainter painter;
     QPainterPath path;
-    QFile file("data.dat");
-    quint16 data;
-    qint64 readed, size;
-    file.open(QIODevice::ReadOnly);
-    size = file.size() / 2 - 1;
-    if(size > 100000)
-        size = 100000;
-    if(size <= 0) {
-        qWarning("File too small.");
-        file.close();
+    TcpData *tcp_data = new TcpData("data.dat");
+    quint16 data[TcpData::units];
+    if(!(tcp_data->read() && tcp_data->get_data(tcp_chip(), tcp_channel(), data)))
         return;
-    }
-    for(qint64 i = 0; i <= size; i++) {
-        readed = file.read((char *)&data, 2);
-        if(readed != 2) {
-            qWarning("Read file error.");
-            file.close();
-            return;
-        }
-        if(i == 0)
-            path.moveTo(0, (qreal)(0xffff - qFromBigEndian(data)) / 0xffff);
-        else
-            path.lineTo((qreal)i / size, (qreal)(0xffff - qFromBigEndian(data)) / 0xffff);
-    }
-    file.close();
+    delete tcp_data;
+    path.moveTo(0, (qreal)(TcpData::datamask - data[0]) / TcpData::datamask);
+    for(qint64 i = 1; i < TcpData::units; i++)
+        path.lineTo((qreal)i / (TcpData::units - 1), (qreal)(TcpData::datamask - data[i]) / TcpData::datamask);
     painter.begin(&picture);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.drawPicture(0, 0, background_picture(tcp_canvas_get_aspect_ratio()));
@@ -504,7 +477,7 @@ TcpCom::~TcpCom()
 
 void TcpCom::on_connected()
 {
-    window->tcp_show("Connected.");
+    window->statusBar()->showMessage("Connected.");
     window->tcp_set_connected(true);
     window->tcp_set_enabled(true);
     file = new QFile(QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz'.dat'"));
@@ -514,7 +487,7 @@ void TcpCom::on_connected()
 
 void TcpCom::on_disconnected()
 {
-    window->tcp_show("Disconnected.");
+    window->statusBar()->showMessage("Disconnected.");
     window->tcp_set_connected(false);
     window->tcp_set_enabled(true);
     file->close();
@@ -539,8 +512,102 @@ void TcpCom::on_readyRead()
         delete []data;
     stat += readed;
     if(t.elapsed() > 1000) {
-        window->tcp_show(QString("Speed: %1 Mbps").arg((double)stat * 8000 / t.elapsed() / 1024 / 1024));
+        window->statusBar()->showMessage(QString("Speed: %1 Mbps").arg((double)stat * 8000 / t.elapsed() / 1024 / 1024));
         stat = 0;
         t.restart();
     }
+}
+
+TcpData::TcpData(const QString &name)
+{
+    file = new QFile(name);
+}
+
+TcpData::~TcpData()
+{
+    delete file;
+}
+
+bool TcpData::read()
+{
+    quint32 data;
+    file->open(QIODevice::ReadOnly);
+    if(!read32(&data) || qFromBigEndian(data) != header) {
+        qWarning("Wrong Header.");
+        file->close();
+        return false;
+    }
+    if(!read32(&data)) {
+        file->close();
+        return false;
+    }
+    options = qFromBigEndian(data);
+    for(qint64 i = 0; i < units; i++) {
+        if(!read32(&data) || qFromBigEndian(data) != gap1) {
+            qWarning() << "Wrong Gap, Unit:" << i << '.';
+            file->close();
+            return false;
+        }
+        if(!read32(&data) || qFromBigEndian(data) != gap2) {
+            qWarning() << "Wrong Gap, Unit:" << i << '.';
+            file->close();
+            return false;
+        }
+        for(qint64 j = 0; j < channels; j++) {
+            if(!read32(&data)) {
+                file->close();
+                return false;
+            }
+            chip1[j][i] = qFromBigEndian(data) >> 16;
+            if((chip1[j][i] & ~datamask) != chip1bits) {
+                qWarning() << "Wrong Data, Chip: 1 , Channel:" << j << ", Unit:" << i << '.' << chip1[j][i];
+                file->close();
+                return false;
+            }
+            chip1[j][i] &= datamask;
+            chip2[j][i] = qFromBigEndian(data);
+            if((chip2[j][i] & ~datamask) != chip2bits) {
+                qWarning() << "Wrong Data, Chip: 2 , Channel:" << j << ", Unit:" << i << '.';
+                file->close();
+                return false;
+            }
+            chip2[j][i] &= datamask;
+        }
+    }
+    if(!read32(&data) || qFromBigEndian(data) != footer) {
+        qWarning("Wrong Footer.");
+        file->close();
+        return false;
+    }
+    file->close();
+    return true;
+}
+
+bool TcpData::get_data(qint64 chip, qint64 channel, quint16 *data)
+{
+    if(channel < 0 || channel >= channels) {
+        qWarning("Wrong Channel.");
+        return false;
+    }
+    for(qint64 i = 0; i < units; i++)
+        if(chip == 1)
+            data[i] = chip1[channel][i];
+        else if(chip == 2)
+            data[i] = chip2[channel][i];
+        else {
+            qWarning("Wrong Chip");
+            return false;
+        }
+    return true;
+}
+
+bool TcpData::read32(quint32 *data)
+{
+    qint64 readed;
+    readed = file->read((char *)data, sizeof(quint32));
+    if(readed != sizeof(quint32)) {
+        qWarning("Read file error.");
+        return false;
+    }
+    return true;
 }

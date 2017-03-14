@@ -2,7 +2,8 @@
 #define RBCP_H
 #include <QtGui>
 #include <QtNetwork>
-namespace Ui {
+namespace Ui
+{
     class MainWindow;
 }
 class MainWindow : public QMainWindow
@@ -11,7 +12,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
-    void tcp_show(const QString &);
     void tcp_set_enabled(bool);
     void tcp_set_connected(bool);
 private slots:
@@ -42,9 +42,10 @@ private:
     quint8 rbcp_trigselec();
     quint8 rbcp_trigdelay();
     quint8 rbcp_dacthres();
-    void rbcp_show(const QString &);
     QHostAddress tcp_ipaddr();
     quint16 tcp_port();
+    qint64 tcp_chip();
+    qint64 tcp_channel();
     void tcp_canvas_set_picture(const QPicture &);
     qreal tcp_canvas_get_aspect_ratio();
 };
@@ -75,5 +76,23 @@ private:
     QTime t;
     qint64 stat;
     quint8 *data;
+};
+class TcpData
+{
+public:
+    TcpData(const QString &);
+    ~TcpData();
+    static const quint16 datamask = 0x0fff;
+    static const qint64 channels = 64, units = 512;
+    bool read();
+    bool get_data(qint64, qint64, quint16 *);
+private:
+    static const quint32 header = 0x55aa55aa, footer = 0xffffffff, gap1 = 0x8002c000, gap2 = 0x8002c000;
+    static const quint16 chip1bits = 0x8000, chip2bits = 0xc000;
+    quint32 options;
+    quint16 chip1[channels][units];
+    quint16 chip2[channels][units];
+    QFile *file;
+    bool read32(quint32 *);
 };
 #endif
