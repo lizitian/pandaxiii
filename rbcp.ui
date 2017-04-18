@@ -26,164 +26,10 @@ QGroupBox::title {
     padding: 0 0.2em 0 0.2em;
 }</string>
    </property>
-   <widget class="QWidget" name="rbcp">
+   <widget class="QWidget" name="systemconfigure">
     <attribute name="title">
-     <string>RBCP</string>
+     <string>系统配置</string>
     </attribute>
-    <widget class="QGroupBox" name="rbcpbasicconfiguration">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>40</y>
-       <width>240</width>
-       <height>130</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Basic Configuration</string>
-     </property>
-     <layout class="QFormLayout" name="rbcpbasicconfigurationlayout">
-      <property name="topMargin">
-       <number>10</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="rbcpipaddrlabel">
-        <property name="text">
-         <string>IP Address:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="rbcpipaddr">
-        <property name="text">
-         <string>192.168.10.16</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="rbcpportlabel">
-        <property name="text">
-         <string>Port:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="rbcpport">
-        <property name="text">
-         <string>4660</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="addresslabel">
-        <property name="text">
-         <string>Address:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="address"/>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QGroupBox" name="writedata">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>200</y>
-       <width>240</width>
-       <height>130</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Write Data</string>
-     </property>
-     <widget class="QLabel" name="datalabel">
-      <property name="geometry">
-       <rect>
-        <x>30</x>
-        <y>40</y>
-        <width>30</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Data:</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="data">
-      <property name="geometry">
-       <rect>
-        <x>80</x>
-        <y>35</y>
-        <width>120</width>
-        <height>30</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="write">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>80</y>
-        <width>100</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>write</string>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QGroupBox" name="readdata">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>360</y>
-       <width>240</width>
-       <height>130</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Read Data</string>
-     </property>
-     <widget class="QLabel" name="lengthlabel">
-      <property name="geometry">
-       <rect>
-        <x>25</x>
-        <y>40</y>
-        <width>45</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Length:</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="length">
-      <property name="geometry">
-       <rect>
-        <x>80</x>
-        <y>36</y>
-        <width>120</width>
-        <height>30</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="read">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>80</y>
-        <width>100</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>read</string>
-      </property>
-     </widget>
-    </widget>
     <widget class="QGroupBox" name="configure">
      <property name="geometry">
       <rect>
@@ -519,9 +365,168 @@ QGroupBox::title {
      </widget>
     </widget>
    </widget>
-   <widget class="QWidget" name="tcp">
+   <widget class="QWidget" name="daqdebug">
     <attribute name="title">
-     <string>TCP</string>
+     <string>DAQ调试</string>
+    </attribute>
+    <widget class="QGroupBox" name="rbcpbasicconfiguration">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>40</y>
+       <width>240</width>
+       <height>130</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Basic Configuration</string>
+     </property>
+     <layout class="QFormLayout" name="rbcpbasicconfigurationlayout">
+      <property name="topMargin">
+       <number>10</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="rbcpipaddrlabel">
+        <property name="text">
+         <string>IP Address:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="rbcpipaddr">
+        <property name="text">
+         <string>192.168.10.16</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="rbcpportlabel">
+        <property name="text">
+         <string>Port:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="rbcpport">
+        <property name="text">
+         <string>4660</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="addresslabel">
+        <property name="text">
+         <string>Address:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="address"/>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QGroupBox" name="writedata">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>200</y>
+       <width>240</width>
+       <height>130</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Write Data</string>
+     </property>
+     <widget class="QLabel" name="datalabel">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>40</y>
+        <width>30</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Data:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="data">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>35</y>
+        <width>120</width>
+        <height>30</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="write">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>80</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>write</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="readdata">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>360</y>
+       <width>240</width>
+       <height>130</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Read Data</string>
+     </property>
+     <widget class="QLabel" name="lengthlabel">
+      <property name="geometry">
+       <rect>
+        <x>25</x>
+        <y>40</y>
+        <width>45</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Length:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="length">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>36</y>
+        <width>120</width>
+        <height>30</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="read">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>80</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>read</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="dataacquire">
+    <attribute name="title">
+     <string>数据获取</string>
     </attribute>
     <widget class="QLabel" name="tcpipaddrlabel">
      <property name="geometry">
@@ -591,6 +596,11 @@ QGroupBox::title {
       <bool>true</bool>
      </property>
     </widget>
+   </widget>
+   <widget class="QWidget" name="wavedisplay">
+    <attribute name="title">
+     <string>波形显示</string>
+    </attribute>
     <widget class="QComboBox" name="chip">
      <property name="geometry">
       <rect>
@@ -647,6 +657,16 @@ QGroupBox::title {
       </rect>
      </property>
     </widget>
+   </widget>
+   <widget class="QWidget" name="baselinetest">
+    <attribute name="title">
+     <string>基线测试</string>
+    </attribute>
+   </widget>
+   <widget class="QWidget" name="systemtest">
+    <attribute name="title">
+     <string>系统测试</string>
+    </attribute>
    </widget>
   </widget>
   <widget class="QStatusBar" name="status"/>
