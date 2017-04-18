@@ -1,5 +1,5 @@
-#include "rbcp.h"
-#include "ui_rbcp.h"
+#include "pandaxiii.h"
+#include "ui_pandaxiii.h"
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     ui = new Ui::MainWindow;

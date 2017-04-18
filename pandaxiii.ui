@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>rbcp</string>
+   <string>PandaX-III实验原型电子学测试软件</string>
   </property>
   <widget class="QTabWidget" name="MainWidget">
    <property name="styleSheet">

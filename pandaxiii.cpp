@@ -1,4 +1,4 @@
-#include "rbcp.h"
+#include "pandaxiii.h"
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
