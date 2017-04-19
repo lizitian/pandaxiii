@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->setupUi(this);
     setFixedSize(size());
     ui->canvas->setScaledContents(true);
+    ui->baselinecanvas->setScaledContents(true);
     ui->samplerate->addItem("50MHz", 0);
     ui->samplerate->addItem("25MHz", 1);
     ui->samplerate->addItem("12.5MHz", 3);
@@ -24,10 +25,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->agetthres->addItem("2%", 1);
     ui->agetthres->addItem("4%", 2);
     ui->agetthres->addItem("5.5%", 3);
-    ui->agetthres->addItem("7.5%(middle value)", 4);
+    ui->agetthres->addItem(QString::fromUtf8("7.5%(中间值)"), 4);
     ui->agetthres->addItem("9%", 5);
     ui->agetthres->addItem("11%", 6);
-    ui->agetthres->addItem("12%(max value)", 7);
+    ui->agetthres->addItem(QString::fromUtf8("12%(最大值)"), 7);
     ui->testcap->addItem("120fF", 0);
     ui->testcap->addItem("240fF", 1);
     ui->testcap->addItem("1pF", 2);
@@ -47,14 +48,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->chthres->addItem("0101", 5);
     ui->chthres->addItem("0110", 6);
     ui->chthres->addItem("0111", 7);
-    ui->chthres->addItem("1000(middle value)", 8);
+    ui->chthres->addItem(QString::fromUtf8("1000(中间值)"), 8);
     ui->chthres->addItem("1001", 9);
     ui->chthres->addItem("1010", 10);
     ui->chthres->addItem("1011", 11);
     ui->chthres->addItem("1100", 12);
     ui->chthres->addItem("1101", 13);
     ui->chthres->addItem("1110", 14);
-    ui->chthres->addItem("1111(max value)", 15);
+    ui->chthres->addItem(QString::fromUtf8("1111(最大值)"), 15);
     ui->trigselec->addItem("Self Trig", 0);
     ui->trigselec->addItem("Ext Trig", 1);
     ui->trigselec->addItem("Hit Trig", 3);
@@ -72,6 +73,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->dacthres->addItem("1V", 5);
     ui->chip->addItem("Chip 1", 1);
     ui->chip->addItem("Chip 2", 2);
+
+    QLabel *label; // memory
+    for(qint32 i = 0; i <= 15; i++) {
+        label = new QLabel(ui->wavedisplay);
+        label->setGeometry(QRect(60 + 670 * i / 15, 510, 30, 20));
+        label->setText(QString().sprintf("%d", i * 511 / 15));
+    }
+    for(qint32 i = 0; i <= 8; i++) {
+        label = new QLabel(ui->wavedisplay);
+        label->setGeometry(QRect(20, 490 - 350 * i / 8, 30, 20));
+        label->setText(QString().sprintf("%4d", i * 4095 / 8));
+    }
+    for(qint32 i = 0; i <= 15; i++) {
+        label = new QLabel(ui->baselinetest);
+        label->setGeometry(QRect(60 + 670 * i / 15, 510, 30, 20));
+        label->setText(QString().sprintf("%d", i * 63 / 15));
+    }
+    for(qint32 i = 0; i <= 8; i++) {
+        label = new QLabel(ui->baselinetest);
+        label->setGeometry(QRect(20, 490 - 350 * i / 8, 30, 20));
+        label->setText(QString().sprintf("%4d", i * 4095 / 8));
+    }
 }
 
 MainWindow::~MainWindow()
@@ -79,9 +102,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QHostAddress MainWindow::rbcp_ipaddr()
+QHostAddress MainWindow::ipaddr()
 {
-    return QHostAddress(ui->rbcpipaddr->text());
+    return QHostAddress(ui->ipaddr->text());
 }
 
 quint16 MainWindow::rbcp_port()
@@ -159,11 +182,6 @@ quint8 MainWindow::rbcp_dacthres()
     return ui->dacthres->itemData(ui->dacthres->currentIndex()).toUInt();
 }
 
-QHostAddress MainWindow::tcp_ipaddr()
-{
-    return QHostAddress(ui->tcpipaddr->text());
-}
-
 quint16 MainWindow::tcp_port()
 {
     return ui->tcpport->text().toUInt(0, 0);
@@ -187,6 +205,11 @@ void MainWindow::tcp_canvas_set_picture(const QPicture &picture)
 qreal MainWindow::tcp_canvas_get_aspect_ratio()
 {
     return (qreal)ui->canvas->width() / ui->canvas->height();
+}
+
+void MainWindow::baseline_canvas_set_picture(const QPicture &picture)
+{
+    ui->baselinecanvas->setPicture(picture);
 }
 
 void MainWindow::tcp_set_enabled(bool enabled)

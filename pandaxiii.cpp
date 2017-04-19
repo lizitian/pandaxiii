@@ -20,7 +20,7 @@ void MainWindow::on_write_clicked()
         data_str.insert(2, '0');
     for(qint64 i = 1; i < data_str.size() / 2; i++) {
         quint8 data = data_str.mid(i * 2, 2).toUInt(0, 16);
-        if(!rbcp_com(rbcp_ipaddr(), rbcp_port(), RBCP_CMD_WR, 1, rbcp_address(), &data)) {
+        if(!rbcp_com(ipaddr(), rbcp_port(), RBCP_CMD_WR, 1, rbcp_address(), &data)) {
             qWarning("Send Data Error.");
             statusBar()->showMessage("Send Data Error!");
             return;
@@ -34,7 +34,7 @@ void MainWindow::on_read_clicked()
     quint8 length = rbcp_length();
     quint32 address = rbcp_address();
     quint8 *data = new quint8[length];
-    if(rbcp_com(rbcp_ipaddr(), rbcp_port(), RBCP_CMD_RD, length, address, data)) {
+    if(rbcp_com(ipaddr(), rbcp_port(), RBCP_CMD_RD, length, address, data)) {
         QString buffer;
         buffer.sprintf("Received Data: [0x%08x]:", address);
         for(quint8 i = 0; i < length; i++) {
@@ -90,12 +90,12 @@ void MainWindow::on_CFigPLL_clicked()
         0x12, 0x00, 0x00, 0x00,
         0x10, 0x00, 0x00, 0x00,
     };
-    QHostAddress ipaddr = rbcp_ipaddr();
+    QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
@@ -186,12 +186,12 @@ void MainWindow::on_AGET_test_clicked()
         0x41, 0x0a, 0x00, 0x00,
         0x40, 0x40, 0x00, 0x00,
     };
-    QHostAddress ipaddr = rbcp_ipaddr();
+    QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
@@ -207,12 +207,12 @@ void MainWindow::on_StartSCA_clicked()
     quint8 data[] = {
         (quint8)((scachannel << 1) | 0x51), 0x08, 0x00, 0x00,
     };
-    QHostAddress ipaddr = rbcp_ipaddr();
+    QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
@@ -231,12 +231,12 @@ void MainWindow::on_TriggerEn_clicked(bool checked)
         data[1] = 0x0f;
         data[2] = ((rbcp_trigselec() << 6) & 0xc0) | (rbcp_trigdelay() & 0x3f);
     }
-    QHostAddress ipaddr = rbcp_ipaddr();
+    QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
@@ -256,12 +256,12 @@ void MainWindow::on_CFigDAC_clicked()
       //0xc1, 0x00, 0x31, 0x10,
       //0xc1, 0x00, 0x31, 0x00,
     };
-    QHostAddress ipaddr = rbcp_ipaddr();
+    QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
         if(!ok)
             break;
     }
@@ -282,7 +282,7 @@ void MainWindow::on_connect_clicked(bool checked)
     tcp_set_enabled(false);
     if(checked) {
         sock = new TcpCom(this);
-        sock->connectToHost(tcp_ipaddr(), tcp_port());
+        sock->connectToHost(ipaddr(), tcp_port());
     } else {
         sock->disconnectFromHost();
         sock = NULL;
@@ -293,13 +293,13 @@ static QPicture background_picture(qreal aspect_ratio)
 {
     QPicture picture;
     QPainter painter;
-    qint16 h = 30, v = h * aspect_ratio;
+    qint16 h = 8, v = h * aspect_ratio;
     painter.begin(&picture);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setPen(Qt::NoPen);
-    painter.setBrush(Qt::darkCyan);
+    painter.setBrush(Qt::black);
     painter.drawRect(0, 0, 1, 1);
-    painter.setPen(Qt::black);
+    painter.setPen(Qt::darkGreen);
     painter.setBrush(Qt::NoBrush);
     for(qint16 i = 0; i <= h; i++)
         painter.drawLine(QPointF(0, (qreal)i / h), QPointF(1, (qreal)i / h));
@@ -316,8 +316,10 @@ void MainWindow::on_draw_clicked()
     QPainterPath path;
     TcpData *tcp_data = new TcpData("data.dat");
     quint16 data[TcpData::units];
-    if(!(tcp_data->read() && tcp_data->get_data(tcp_chip(), tcp_channel(), data)))
+    if(!(tcp_data->read() && tcp_data->get_data(tcp_chip(), tcp_channel(), data))) {
+        delete tcp_data;
         return;
+    }
     delete tcp_data;
     path.moveTo(0, (qreal)(TcpData::datamask - data[0]) / TcpData::datamask);
     for(qint64 i = 1; i < TcpData::units; i++)
@@ -325,11 +327,42 @@ void MainWindow::on_draw_clicked()
     painter.begin(&picture);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.drawPicture(0, 0, background_picture(tcp_canvas_get_aspect_ratio()));
-    painter.setPen(QPen(Qt::green, 0.005));
+    painter.setPen(QPen(Qt::white, 0.005));
     painter.setBrush(Qt::NoBrush);
     painter.drawPath(path);
     painter.end();
     tcp_canvas_set_picture(picture);
+}
+
+void MainWindow::on_baselinebutton_clicked()
+{
+    QPicture picture;
+    QPainter painter;
+    TcpData *tcp_data = new TcpData("data.dat");
+    if(!tcp_data->read()) {
+        delete tcp_data;
+        return;
+    }
+    painter.begin(&picture);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.drawPicture(0, 0, background_picture(tcp_canvas_get_aspect_ratio())); // bug
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(Qt::white);
+    for(qint64 i = 0; i < TcpData::channels; i++) {
+        qint64 sum = 0;
+        quint16 data[TcpData::units];
+        if(!tcp_data->get_data(tcp_chip(), i, data)) {
+            delete tcp_data;
+            return;
+        }
+        for(qint64 j = 0; j < TcpData::units; j++)
+            sum += data[j];
+        qreal height = (qreal)sum / TcpData::units / TcpData::datamask;
+        painter.drawRect(QRectF((qreal)i / TcpData::channels, 1 - height, 1.0 / TcpData::channels, height));
+    }
+    delete tcp_data;
+    painter.end();
+    baseline_canvas_set_picture(picture);
 }
 
 static inline void construct_packet(void *buffer, const rbcp_header *header, const void *data)

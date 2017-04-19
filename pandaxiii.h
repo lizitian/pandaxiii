@@ -24,9 +24,10 @@ private slots:
     void on_CFigDAC_clicked();
     void on_connect_clicked(bool);
     void on_draw_clicked();
+    void on_baselinebutton_clicked();
 private:
     Ui::MainWindow *ui;
-    QHostAddress rbcp_ipaddr();
+    QHostAddress ipaddr();
     quint16 rbcp_port();
     quint32 rbcp_address();
     QString rbcp_data();
@@ -42,12 +43,12 @@ private:
     quint8 rbcp_trigselec();
     quint8 rbcp_trigdelay();
     quint8 rbcp_dacthres();
-    QHostAddress tcp_ipaddr();
     quint16 tcp_port();
     qint64 tcp_chip();
     qint64 tcp_channel();
     void tcp_canvas_set_picture(const QPicture &);
     qreal tcp_canvas_get_aspect_ratio();
+    void baseline_canvas_set_picture(const QPicture &);
 };
 #define RBCP_CMD_WR 0x80
 #define RBCP_CMD_RD 0xc0

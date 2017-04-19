@@ -30,7 +30,153 @@ QGroupBox::title {
     <attribute name="title">
      <string>系统配置</string>
     </attribute>
-    <widget class="QGroupBox" name="configure">
+    <widget class="QLabel" name="ipaddrlabel">
+     <property name="geometry">
+      <rect>
+       <x>66</x>
+       <y>105</y>
+       <width>65</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>IP Address:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="ipaddr">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>100</y>
+       <width>120</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>192.168.10.16</string>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="connectstatus">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>200</y>
+       <width>171</width>
+       <height>281</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>DAQ状态</string>
+     </property>
+     <layout class="QGridLayout" name="connectstatuslayout">
+      <property name="topMargin">
+       <number>20</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label11">
+        <property name="text">
+         <string>SFP 1:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label12">
+        <property name="styleSheet">
+         <string notr="true">background-color: red;</string>
+        </property>
+        <property name="text">
+         <string>OFF</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label21">
+        <property name="text">
+         <string>SFP 2:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="label22">
+        <property name="styleSheet">
+         <string notr="true">background-color: yellow;</string>
+        </property>
+        <property name="text">
+         <string>MRC</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label31">
+        <property name="text">
+         <string>SFP 3:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="label32">
+        <property name="styleSheet">
+         <string notr="true">background-color: green;</string>
+        </property>
+        <property name="text">
+         <string>FEC</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label41">
+        <property name="text">
+         <string>SFP 4:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLabel" name="label42">
+        <property name="styleSheet">
+         <string notr="true">background-color: green;</string>
+        </property>
+        <property name="text">
+         <string>FEC</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label51">
+        <property name="text">
+         <string>SFP 5:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QLabel" name="label52">
+        <property name="styleSheet">
+         <string notr="true">background-color: green;</string>
+        </property>
+        <property name="text">
+         <string>FEC</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label61">
+        <property name="text">
+         <string>SFP 6:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="label62">
+        <property name="styleSheet">
+         <string notr="true">background-color: green;</string>
+        </property>
+        <property name="text">
+         <string>FEC</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QGroupBox" name="fecconfigure">
      <property name="geometry">
       <rect>
        <x>370</x>
@@ -40,7 +186,7 @@ QGroupBox::title {
       </rect>
      </property>
      <property name="title">
-      <string>Configure</string>
+      <string>FEC Configure</string>
      </property>
      <widget class="QLabel" name="sampleratelabel">
       <property name="geometry">
@@ -372,55 +518,41 @@ QGroupBox::title {
     <widget class="QGroupBox" name="rbcpbasicconfiguration">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>40</y>
-       <width>240</width>
-       <height>130</height>
+       <x>150</x>
+       <y>90</y>
+       <width>461</width>
+       <height>71</height>
       </rect>
      </property>
      <property name="title">
       <string>Basic Configuration</string>
      </property>
-     <layout class="QFormLayout" name="rbcpbasicconfigurationlayout">
+     <layout class="QGridLayout" name="rbcpbasicconfigurationlayout">
       <property name="topMargin">
        <number>10</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="rbcpipaddrlabel">
-        <property name="text">
-         <string>IP Address:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="rbcpipaddr">
-        <property name="text">
-         <string>192.168.10.16</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
        <widget class="QLabel" name="rbcpportlabel">
         <property name="text">
          <string>Port:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="1">
        <widget class="QLineEdit" name="rbcpport">
         <property name="text">
          <string>4660</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="0" column="2">
        <widget class="QLabel" name="addresslabel">
         <property name="text">
          <string>Address:</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
+      <item row="0" column="3">
        <widget class="QLineEdit" name="address"/>
       </item>
      </layout>
@@ -428,8 +560,8 @@ QGroupBox::title {
     <widget class="QGroupBox" name="writedata">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>200</y>
+       <x>420</x>
+       <y>230</y>
        <width>240</width>
        <height>130</height>
       </rect>
@@ -477,8 +609,8 @@ QGroupBox::title {
     <widget class="QGroupBox" name="readdata">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>360</y>
+       <x>90</x>
+       <y>230</y>
        <width>240</width>
        <height>130</height>
       </rect>
@@ -528,37 +660,11 @@ QGroupBox::title {
     <attribute name="title">
      <string>数据获取</string>
     </attribute>
-    <widget class="QLabel" name="tcpipaddrlabel">
-     <property name="geometry">
-      <rect>
-       <x>126</x>
-       <y>25</y>
-       <width>65</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>IP Address:</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="tcpipaddr">
-     <property name="geometry">
-      <rect>
-       <x>210</x>
-       <y>20</y>
-       <width>120</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>192.168.10.16</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="tcpportlabel">
      <property name="geometry">
       <rect>
-       <x>353</x>
-       <y>25</y>
+       <x>283</x>
+       <y>95</y>
        <width>28</width>
        <height>20</height>
       </rect>
@@ -570,8 +676,8 @@ QGroupBox::title {
     <widget class="QLineEdit" name="tcpport">
      <property name="geometry">
       <rect>
-       <x>400</x>
-       <y>20</y>
+       <x>330</x>
+       <y>90</y>
        <width>120</width>
        <height>30</height>
       </rect>
@@ -583,8 +689,8 @@ QGroupBox::title {
     <widget class="QPushButton" name="connect">
      <property name="geometry">
       <rect>
-       <x>560</x>
-       <y>20</y>
+       <x>320</x>
+       <y>160</y>
        <width>100</width>
        <height>30</height>
       </rect>
@@ -656,12 +762,41 @@ QGroupBox::title {
        <height>350</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: black;</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="baselinetest">
     <attribute name="title">
      <string>基线测试</string>
     </attribute>
+    <widget class="QPushButton" name="baselinebutton">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>70</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>基线测试</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="baselinecanvas">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>150</y>
+       <width>680</width>
+       <height>350</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: black;</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="systemtest">
     <attribute name="title">
