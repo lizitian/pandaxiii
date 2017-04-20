@@ -1,10 +1,24 @@
 PandaX-III实验原型电子学测试软件的设计
 ======================================
 
+
+软件基于Qt 4框架进行开发，参看[Qt 4.8官方文档](https://doc.qt.io/qt-4.8/)。应用界面ui对象采用[单继承、成员指针变量方式](https://doc.qt.io/qt-4.8/designer-using-a-ui-file.html)，涉及ui对象的操作封装于ui.cpp，因此只有ui.cpp文件需#include "ui_pandaxiii.h"文件，其他代码文件仅需#include "pandaxiii.h"。
+
+目录结构
+--------
+
+```
+dlls/         发布所需的动态库文件
+.gitignore    Git版本控制文件
+README.md     此文件
+*.pro         项目文件
+*.ui          用户界面文件
+*.h           应用程序头文件
+*.cpp         应用程序代码文件
+```
+
 Windows开发环境配置
 -------------------
-
-软件基于Qt 4框架进行开发，开发环境配置步骤如下：
 
 1. 安装Visual Studio 2010，下载[vs_ultimateweb.exe](https://download.microsoft.com/download/4/0/6/4067968E-5530-4A08-B8EC-17D2B3F02C35/vs_ultimateweb.exe)。注：Qt 4.8仅支持VS 2008和VS 2010，如果使用其他版本VS，需要自行编译Qt库，或移植程序使用Qt 5。
 

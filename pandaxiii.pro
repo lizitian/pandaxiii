@@ -1,4 +1,4 @@
 QT      = core gui network
-HEADERS = pandaxiii.h
 FORMS   = pandaxiii.ui
+HEADERS = pandaxiii.h
 SOURCES = pandaxiii.cpp ui.cpp
