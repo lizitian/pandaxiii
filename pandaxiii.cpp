@@ -509,8 +509,8 @@ bool rbcp_read(const QHostAddress &ipaddr, quint16 port, quint8 length, quint32 
 
 bool rbcp_write(const QHostAddress &ipaddr, quint16 port, quint32 address, quint8 data)
 {
-    static quint32 count_addr = 0xffffffff;
-    static quint32 data_addr = 0xffffffff;
+    static quint32 count_addr = 0xfffe0000;
+    static quint32 data_addr = 0xfffe0001;
     static quint8 count;
     static bool initialized = false;
     quint8 current_count;
