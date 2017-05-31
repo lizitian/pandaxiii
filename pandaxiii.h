@@ -59,7 +59,8 @@ typedef struct {
     quint8 length;
     quint32 address;
 } rbcp_header;
-bool rbcp_com(const QHostAddress &, quint16, quint8, quint8, quint32, void *);
+bool rbcp_read(const QHostAddress &, quint16, quint8, quint32, void *);
+bool rbcp_write(const QHostAddress &, quint16, quint32, quint8);
 class TcpCom : public QTcpSocket
 {
     Q_OBJECT

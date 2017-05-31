@@ -20,7 +20,7 @@ README.md     此文件
 Windows开发环境配置
 -------------------
 
-1. 安装Visual Studio 2010，下载[vs_ultimateweb.exe](https://download.microsoft.com/download/4/0/6/4067968E-5530-4A08-B8EC-17D2B3F02C35/vs_ultimateweb.exe)。注：Qt 4.8仅支持VS 2008和VS 2010，如果使用其他版本VS，需要自行编译Qt库，或移植程序使用Qt 5。
+1. 安装Visual Studio 2010，下载[vs_ultimateweb.exe](https://download.microsoft.com/download/4/0/6/4067968E-5530-4A08-B8EC-17D2B3F02C35/vs_ultimateweb.exe)。注：无需激活，安装试用版即可；另外Qt 4.8仅支持VS 2008和VS 2010，如果使用其他版本VS，需要自行编译Qt库，或移植程序使用Qt 5。
 
 ![Step 1](https://lizitian.com/pandaxiii/s1.png)
 

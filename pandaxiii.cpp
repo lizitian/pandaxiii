@@ -1,8 +1,21 @@
 #include "pandaxiii.h"
+static void msg_handler(QtMsgType type, const char *msg)
+{
+    QTextStream out(stdout);
+    if(type == QtDebugMsg)
+        out << "[Info]:";
+    else if(type == QtWarningMsg)
+        out << "[Warning]:";
+    else
+        out << "[ERROR]:";
+    out << msg << endl;
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     MainWindow window;
+    qInstallMsgHandler(msg_handler);
     window.show();
     return app.exec();
 }
@@ -20,7 +33,7 @@ void MainWindow::on_write_clicked()
         data_str.insert(2, '0');
     for(qint64 i = 1; i < data_str.size() / 2; i++) {
         quint8 data = data_str.mid(i * 2, 2).toUInt(0, 16);
-        if(!rbcp_com(ipaddr(), rbcp_port(), RBCP_CMD_WR, 1, rbcp_address(), &data)) {
+        if(!rbcp_write(ipaddr(), rbcp_port(), rbcp_address(), data)) {
             qWarning("Send Data Error.");
             statusBar()->showMessage("Send Data Error!");
             return;
@@ -34,7 +47,7 @@ void MainWindow::on_read_clicked()
     quint8 length = rbcp_length();
     quint32 address = rbcp_address();
     quint8 *data = new quint8[length];
-    if(rbcp_com(ipaddr(), rbcp_port(), RBCP_CMD_RD, length, address, data)) {
+    if(rbcp_read(ipaddr(), rbcp_port(), length, address, data)) {
         QString buffer;
         buffer.sprintf("Received Data: [0x%08x]:", address);
         for(quint8 i = 0; i < length; i++) {
@@ -95,7 +108,7 @@ void MainWindow::on_CFigPLL_clicked()
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_write(ip_address, port, address, data[i]);
         if(!ok)
             break;
     }
@@ -191,7 +204,7 @@ void MainWindow::on_AGET_test_clicked()
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_write(ip_address, port, address, data[i]);
         if(!ok)
             break;
     }
@@ -212,7 +225,7 @@ void MainWindow::on_StartSCA_clicked()
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_write(ip_address, port, address, data[i]);
         if(!ok)
             break;
     }
@@ -236,7 +249,7 @@ void MainWindow::on_TriggerEn_clicked(bool checked)
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_write(ip_address, port, address, data[i]);
         if(!ok)
             break;
     }
@@ -261,7 +274,7 @@ void MainWindow::on_CFigDAC_clicked()
     quint32 address = rbcp_address();
     bool ok;
     for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_com(ip_address, port, RBCP_CMD_WR, 1, address, &data[i]);
+        ok = rbcp_write(ip_address, port, address, data[i]);
         if(!ok)
             break;
     }
@@ -390,7 +403,7 @@ static inline void log_packet(qint64 size, const void *buffer)
     qDebug() << qPrintable(line);
 }
 
-bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 length, quint32 address, void *data)
+static bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 length, quint32 address, void *data)
 {
     static quint8 id = 0x00;
     QUdpSocket sock;
@@ -428,27 +441,20 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
     if(command == RBCP_CMD_WR)
         send_size += length;
     quint8 *send_buffer = new quint8[send_size];
-    for(qint8 i = 0; i < 3; i++) {
-        QTime t;
-        construct_packet(send_buffer, &header, data);
-        sock.writeDatagram((char *)send_buffer, send_size, ipaddr, port);
-        if(i == 0) {
-            qDebug("Sent Packet:");
-            log_packet(send_size, send_buffer);
-            qDebug("Wait to receive the ACK packet...");
-        } else
-            qWarning("Timeout!");
-        t.start();
-        while((t.elapsed() < 1000) && !sock.hasPendingDatagrams());
-        //QCoreApplication::processEvents();
-        if(sock.hasPendingDatagrams())
-            break;
-    }
+    construct_packet(send_buffer, &header, data);
+    sock.writeDatagram((char *)send_buffer, send_size, ipaddr, port);
+    qDebug("Sent Packet:");
+    log_packet(send_size, send_buffer);
+    qDebug("Wait to receive the ACK packet...");
+    QTime t;
+    t.start();
+    while((t.elapsed() < 200) && !sock.hasPendingDatagrams());
+    //QCoreApplication::processEvents();
     qint64 recv_size = sock.pendingDatagramSize();
     delete []send_buffer;
     if(recv_size != (qint64)(sizeof(rbcp_header) + length)) {
         if(recv_size == -1)
-            qWarning("No Packet Received.");
+            qWarning("Timeout, No Packet Received.");
         else
             qWarning("Packet Length Error.");
         return false;
@@ -488,6 +494,65 @@ bool rbcp_com(const QHostAddress &ipaddr, quint16 port, quint8 command, quint8 l
         memcpy(data, recv_buffer + sizeof(rbcp_header), length);
     delete []recv_buffer;
     return true;
+}
+
+bool rbcp_read(const QHostAddress &ipaddr, quint16 port, quint8 length, quint32 address, void *data)
+{
+    for(qint8 i = 0; i < 3; i++) {
+        if(i != 0)
+            qDebug("Resending...");
+        if(rbcp_com(ipaddr, port, RBCP_CMD_RD, length, address, data))
+            return true;
+    }
+    return false;
+}
+
+bool rbcp_write(const QHostAddress &ipaddr, quint16 port, quint32 address, quint8 data)
+{
+    static quint32 count_addr = 0xffffffff;
+    static quint32 data_addr = 0xffffffff;
+    static quint8 count;
+    static bool initialized = false;
+    quint8 current_count;
+    quint8 current_data;
+    if(!initialized) {
+        if(!rbcp_read(ipaddr, port, 1, count_addr, &count)) {
+            qWarning("Cannot read current count register.");
+            return false;
+        }
+        initialized = true;
+    }
+    for(qint8 i = 0; i < 3; i++) {
+        if(i != 0)
+            qDebug("Resending...");
+        if(rbcp_com(ipaddr, port, RBCP_CMD_WR, 1, address, &data)) {
+            count++;
+            return true;
+        }
+        if(!rbcp_read(ipaddr, port, 1, count_addr, &current_count)) {
+            qWarning("Cannot read current count register.");
+            initialized = false;
+            return false;
+        }
+        if(current_count == count + 1) {
+            count++;
+            if(!rbcp_read(ipaddr, port, 1, data_addr, &current_data)) {
+                qWarning("Cannot read current data register.");
+                return false;
+            }
+            if(current_data != data) {
+                qWarning("Current Data Error.");
+                return false;
+            }
+            return true;
+        }
+        if(current_count != count) {
+            qWarning().nospace() << "Current Count is " << current_count << ", Count is " << count << ".";
+            count = current_count;
+            return false;
+        }
+    }
+    return false;
 }
 
 TcpCom::TcpCom(MainWindow *window, QObject *parent) : QTcpSocket(parent)
