@@ -511,10 +511,12 @@ bool rbcp_write(const QHostAddress &ipaddr, quint16 port, quint32 address, quint
 {
     static const quint32 count_addr = 0xfffe0000;
     static const quint32 data_addr = 0xfffe0001;
+    static const quint32 address_addr = 0xfffe0002;
     static quint8 count;
     static bool initialized = false;
     quint8 current_count;
     quint8 current_data;
+    quint8 current_address;
     if(!initialized) {
         if(!rbcp_read(ipaddr, port, 1, count_addr, &count)) {
             qWarning("Cannot read current count register.");
@@ -534,7 +536,7 @@ bool rbcp_write(const QHostAddress &ipaddr, quint16 port, quint32 address, quint
             initialized = false;
             return false;
         }
-        if(current_count == count + 1) {
+        if(current_count == (quint8)(count + 1)) {
             count++;
             if(!rbcp_read(ipaddr, port, 1, data_addr, &current_data)) {
                 qWarning("Cannot read current data register.");
@@ -542,6 +544,14 @@ bool rbcp_write(const QHostAddress &ipaddr, quint16 port, quint32 address, quint
             }
             if(current_data != data) {
                 qWarning("Current Data Error.");
+                return false;
+            }
+            if(!rbcp_read(ipaddr, port, 1, address_addr, &current_address)) {
+                qWarning("Cannot read current address register.");
+                return false;
+            }
+            if(current_address != (address & 0xff)) {
+                qWarning("Current Address Error.");
                 return false;
             }
             return true;
