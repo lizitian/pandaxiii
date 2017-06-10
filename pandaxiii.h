@@ -12,8 +12,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
-    void tcp_set_enabled(bool);
-    void tcp_set_connected(bool);
 private slots:
     void on_write_clicked();
     void on_read_clicked();
@@ -24,8 +22,11 @@ private slots:
     void on_TriggerEn_clicked(bool);
     void on_CFigDAC_clicked();
     void on_connect_clicked(bool);
+    void receive_data(quint8 *, quint32);
     void on_draw_clicked();
     void on_baselinebutton_clicked();
+    void tcp_set_enabled(bool);
+    void tcp_set_connected(bool);
 private:
     Ui::MainWindow *ui;
     QHostAddress ipaddr();
@@ -50,6 +51,8 @@ private:
     void tcp_canvas_set_picture(const QPicture &);
     qreal tcp_canvas_get_aspect_ratio();
     void baseline_canvas_set_picture(const QPicture &);
+signals:
+    void disconnect_from_host();
 };
 #define RBCP_CMD_WR 0x80
 #define RBCP_CMD_RD 0xc0
@@ -62,24 +65,6 @@ typedef struct {
 } rbcp_header;
 bool rbcp_read(const QHostAddress &, quint16, quint8, quint32, void *);
 bool rbcp_write(const QHostAddress &, quint16, quint32, quint8);
-class TcpCom : public QTcpSocket
-{
-    Q_OBJECT
-public:
-    TcpCom(MainWindow *, QObject *parent = 0);
-    virtual ~TcpCom();
-private slots:
-    void on_connected();
-    void on_disconnected();
-    void on_readyRead();
-private:
-    static const qint64 bufsize = 1024 * 1024;
-    MainWindow *window;
-    QFile *file;
-    QTime t;
-    qint64 stat;
-    quint8 *data;
-};
 class TcpData
 {
 public:
@@ -97,5 +82,27 @@ private:
     quint16 chip2[channels][units];
     QFile *file;
     bool read32(quint32 *);
+};
+class TcpWorker : public QThread
+{
+    Q_OBJECT
+public:
+    TcpWorker(const QHostAddress &, quint16);
+protected:
+    virtual void run();
+private slots:
+    void on_connected();
+    void on_disconnected();
+    void on_readyRead();
+    void user_disconnect();
+private:
+    QTcpSocket *sock;
+    QHostAddress ipaddr;
+    quint16 port;
+signals:
+    void send_data(quint8 *, quint32);
+    void ui_status(QString);
+    void ui_tcp_connected(bool);
+    void ui_tcp_enabled(bool);
 };
 #endif

@@ -306,8 +306,8 @@ void MainWindow::on_CFigDAC_clicked()
 
 void MainWindow::on_connect_clicked(bool checked)
 {
-    static TcpCom *sock = NULL;
-    if((sock != NULL) == checked) {
+    static TcpWorker *tcp_worker = NULL;
+    if((tcp_worker != NULL) == checked) {
         qWarning("Internal Error - Socket Status Error.");
         statusBar()->showMessage("Connect Error.");
         return;
@@ -321,11 +321,54 @@ void MainWindow::on_connect_clicked(bool checked)
             tcp_set_enabled(true);
             return;
         }
-        sock = new TcpCom(this);
-        sock->connectToHost(ipaddr(), tcp_port());
+        tcp_worker = new TcpWorker(ipaddr(), tcp_port());
+        connect(tcp_worker, SIGNAL(send_data(quint8 *, quint32)), this, SLOT(receive_data(quint8 *, quint32)));
+        connect(tcp_worker, SIGNAL(ui_status(QString)), statusBar(), SLOT(showMessage(QString)));
+        connect(tcp_worker, SIGNAL(ui_tcp_connected(bool)), this, SLOT(tcp_set_connected(bool)));
+        connect(tcp_worker, SIGNAL(ui_tcp_enabled(bool)), this, SLOT(tcp_set_enabled(bool)));
+        connect(this, SIGNAL(disconnect_from_host()), tcp_worker, SLOT(user_disconnect()));
+        tcp_worker->start();
     } else {
-        sock->disconnectFromHost();
-        sock = NULL;
+        emit disconnect_from_host();
+        tcp_worker->wait();
+        delete tcp_worker;
+        tcp_worker = NULL;
+        statusBar()->showMessage("Disconnected.");
+        tcp_set_connected(false);
+        tcp_set_enabled(true);
+    }
+}
+
+void MainWindow::receive_data(quint8 *data, quint32 length)
+{
+    static QFile *file = NULL;
+    static qint64 stat = 0;
+    static QTime *t = NULL;
+    if(file == NULL) {
+        file = new QFile(QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz'.dat'"));
+        file->open(QIODevice::WriteOnly);
+        t = new QTime();
+        t->start();
+    }
+    if(data == NULL) {
+        if(length == 0) {
+            file->close();
+            delete file;
+            delete t;
+            file = NULL;
+            stat = 0;
+            t = NULL;
+        } else
+            qWarning("data is NULL, but length is not 0.");
+        return;
+    }
+    file->write((char *)data, length);
+    delete []data;
+    stat += length;
+    if(t->elapsed() > 1000) {
+        statusBar()->showMessage(QString("Speed: %1 Mbps").arg((double)stat * 8000 / t->elapsed() / 1024 / 1024));
+        stat = 0;
+        t->restart();
     }
 }
 
@@ -592,67 +635,6 @@ bool rbcp_write(const QHostAddress &ipaddr, quint16 port, quint32 address, quint
     return false;
 }
 
-TcpCom::TcpCom(MainWindow *window, QObject *parent) : QTcpSocket(parent)
-{
-    this->window = window;
-    connect(this, SIGNAL(connected()), this, SLOT(on_connected()));
-    connect(this, SIGNAL(disconnected()), this, SLOT(on_disconnected()));
-    connect(this, SIGNAL(readyRead()), this, SLOT(on_readyRead()));
-    stat = 0;
-    file = NULL;
-    data = new quint8[bufsize];
-}
-
-TcpCom::~TcpCom()
-{
-    delete []data;
-    if(file != NULL)
-        delete file;
-}
-
-void TcpCom::on_connected()
-{
-    window->statusBar()->showMessage("Connected.");
-    window->tcp_set_connected(true);
-    window->tcp_set_enabled(true);
-    file = new QFile(QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz'.dat'"));
-    file->open(QIODevice::WriteOnly);
-    t.start();
-}
-
-void TcpCom::on_disconnected()
-{
-    window->statusBar()->showMessage("Disconnected.");
-    window->tcp_set_connected(false);
-    window->tcp_set_enabled(true);
-    file->close();
-    this->deleteLater();
-}
-
-void TcpCom::on_readyRead()
-{
-    qint64 size = bytesAvailable(), readed;
-    if(size <= 0) {
-        qWarning("No Data to Read.");
-        return;
-    }
-    quint8 *data = this->data;
-    if(size > bufsize)
-        data = new quint8[size];
-    readed = read((char *)data, size);
-    if(readed != size)
-        qWarning("Data Length Mismatch!");
-    file->write((char *)data, readed);
-    if(size > bufsize)
-        delete []data;
-    stat += readed;
-    if(t.elapsed() > 1000) {
-        window->statusBar()->showMessage(QString("Speed: %1 Mbps").arg((double)stat * 8000 / t.elapsed() / 1024 / 1024));
-        stat = 0;
-        t.restart();
-    }
-}
-
 TcpData::TcpData(const QString &name)
 {
     file = new QFile(name);
@@ -745,4 +727,49 @@ bool TcpData::read32(quint32 *data)
         return false;
     }
     return true;
+}
+
+TcpWorker::TcpWorker(const QHostAddress &ipaddr, quint16 port)
+{
+    this->ipaddr = ipaddr;
+    this->port = port;
+}
+
+void TcpWorker::run()
+{
+    sock = new QTcpSocket();
+    connect(sock, SIGNAL(connected()), this, SLOT(on_connected()));
+    connect(sock, SIGNAL(disconnected()), this, SLOT(on_disconnected()));
+    connect(sock, SIGNAL(readyRead()), this, SLOT(on_readyRead()));
+    sock->connectToHost(ipaddr, port);
+    exec();
+}
+
+void TcpWorker::on_connected()
+{
+    emit ui_status("Connected.");
+    emit ui_tcp_connected(true);
+    emit ui_tcp_enabled(true);
+}
+
+void TcpWorker::on_disconnected()
+{
+    emit send_data(NULL, 0);
+    sock->deleteLater();
+    emit quit();
+}
+
+void TcpWorker::on_readyRead()
+{
+    qint64 size = sock->bytesAvailable(), readed;
+    if(size <= 0)
+        return;
+    quint8 *data = new quint8[size];
+    readed = sock->read((char *)data, size);
+    emit send_data(data, readed);
+}
+
+void TcpWorker::user_disconnect()
+{
+    sock->disconnectFromHost();
 }
