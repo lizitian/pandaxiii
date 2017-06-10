@@ -314,6 +314,13 @@ void MainWindow::on_connect_clicked(bool checked)
     }
     tcp_set_enabled(false);
     if(checked) {
+        bool ok = rbcp_write(ipaddr(), rbcp_port(), 0xfffe0026, 0x07);
+        if(!ok) {
+            statusBar()->showMessage("Cannot send clear command.");
+            tcp_set_connected(false);
+            tcp_set_enabled(true);
+            return;
+        }
         sock = new TcpCom(this);
         sock->connectToHost(ipaddr(), tcp_port());
     } else {
