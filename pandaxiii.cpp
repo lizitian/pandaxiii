@@ -61,6 +61,26 @@ void MainWindow::on_read_clicked()
     delete []data;
 }
 
+void MainWindow::on_counter_clicked()
+{
+    QHostAddress ip_address = ipaddr();
+    quint16 port = rbcp_port();
+    quint32 address = rbcp_address();
+    bool ok;
+    for(quint32 i = 0; i < 0x10000; i++) {
+        ok = rbcp_write(ip_address, port, address, i >> 8);
+        if(!ok)
+            break;
+        ok = rbcp_write(ip_address, port, address, i);
+        if(!ok)
+            break;
+    }
+    if(ok)
+        statusBar()->showMessage("PLL Configure Success.");
+    else
+        statusBar()->showMessage("PLL Configure Fail.");
+}
+
 void MainWindow::on_CFigPLL_clicked()
 {
     quint8 samplerate = rbcp_samplerate() & 0x0f;

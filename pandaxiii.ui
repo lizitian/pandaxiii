@@ -655,6 +655,19 @@ QGroupBox::title {
       </property>
      </widget>
     </widget>
+    <widget class="QPushButton" name="counter">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>430</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>counter</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="dataacquire">
     <attribute name="title">
