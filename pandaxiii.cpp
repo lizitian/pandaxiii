@@ -667,51 +667,42 @@ TcpData::~TcpData()
 bool TcpData::read()
 {
     quint16 data;
-    qint64 chip = -1;
     file->open(QIODevice::ReadOnly);
-    if(!read16(&data) || qFromBigEndian(data) != header) {
-        qWarning("Wrong Header.");
-        file->close();
-        return false;
-    }
-    if(!read16(&data) || !read16(&data) || !read16(&data)) {
-        file->close();
-        return false;
-    }
-    if(!read16(&data)) {
-        qWarning("Wrong Header.");
-        file->close();
-        return false;
-    }
-    for(qint64 i = 0; i < (qint64)(sizeof(chipbits) / sizeof(chipbits[0])); i++)
-        if(qFromBigEndian(data) == chipbits[i]) {
-            chip = i;
-            break;
+    for(qint64 chip = 0; chip < (qint64)(sizeof(chipbits) / sizeof(chipbits[0])); chip++) {
+        if(!read16(&data) || qFromBigEndian(data) != header) {
+            qWarning("Wrong Header.");
+            file->close();
+            return false;
         }
-    if(chip == -1) {
-        qWarning("Wrong Header.");
-        file->close();
-        return false;
-    }
-    if(!read16(&data) || qFromBigEndian(data) != chipbits[chip]) {
-        qWarning("Wrong Header.");
-        file->close();
-        return false;
-    }
-    for(qint64 i = 0; i < units; i++) {
-        for(qint64 j = 0; j < channels; j++) {
-            if(!read16(&data) || (qFromBigEndian(data) & ~datamask) != chipbits[chip]) {
-                qWarning() << "Wrong Data, Chip:" << chip + 1 << ", Channel:" << j << ", Unit:" << i << '.';
+        if(!read16(&data) || !read16(&data) || !read16(&data)) {
+            file->close();
+            return false;
+        }
+        for(qint64 i = 0; i < units; i++) {
+            if(!read16(&data) || qFromBigEndian(data) != chipbits[chip]) {
+                qWarning("Wrong Header.");
                 file->close();
                 return false;
             }
-            this->data[chip][j][i] = qFromBigEndian(data) & datamask;
+            if(!read16(&data) || qFromBigEndian(data) != chipbits[chip]) {
+                qWarning("Wrong Header.");
+                file->close();
+                return false;
+            }
+            for(qint64 j = 0; j < channels; j++) {
+                if(!read16(&data) || (qFromBigEndian(data) & ~datamask) != chipbits[chip]) {
+                    qWarning() << "Wrong Data, Chip:" << chip + 1 << ", Channel:" << j << ", Unit:" << i << '.';
+                    file->close();
+                    return false;
+                }
+                this->data[chip][j][i] = qFromBigEndian(data) & datamask;
+            }
         }
-    }
-    if(!read16(&data) || qFromBigEndian(data) != footer) {
-        qWarning("Wrong Footer.");
-        file->close();
-        return false;
+        if(!read16(&data) || qFromBigEndian(data) != footer) {
+            qWarning("Wrong Footer.");
+            file->close();
+            return false;
+        }
     }
     file->close();
     return true;
