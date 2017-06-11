@@ -23,7 +23,8 @@ private slots:
     void on_TriggerEn_clicked(bool);
     void on_CFigDAC_clicked();
     void on_connect_clicked(bool);
-    void tcp_receive_data(quint8 *, quint32);
+    void tcp_receive_data(quint8 *);
+    void write_data_tick();
     void tcp_disconnected();
     void on_draw_clicked();
     void on_baselinebutton_clicked();
@@ -108,8 +109,10 @@ private slots:
     void on_disconnected();
     void on_readyRead();
     void user_disconnect();
+private:
+    quint8 *queue;
 signals:
-    void send_data(quint8 *, quint32);
+    void send_data(quint8 *);
     void ui_status(QString);
     void ui_tcp_connected(bool);
     void ui_tcp_enabled(bool);

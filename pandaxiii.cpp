@@ -326,37 +326,56 @@ void MainWindow::on_connect_clicked(bool checked)
         emit tcp_user_disconnect();
 }
 
-void MainWindow::tcp_receive_data(quint8 *data, quint32 length)
+void MainWindow::tcp_receive_data(quint8 *data)
 {
     static QFile *file = NULL;
     static qint64 stat = 0;
     static QTime *t = NULL;
-    if(file == NULL) {
+    static QTimer *timer = NULL;
+    static quint8 *queue;
+    if(data != NULL) {
         file = new QFile(QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz'.dat'"));
         file->open(QIODevice::WriteOnly);
         t = new QTime();
         t->start();
+        timer = new QTimer();
+        timer->start(5);
+        connect(timer, SIGNAL(timeout()), this, SLOT(write_data_tick()));
+        queue = data;
     }
-    if(data == NULL) {
-        if(length == 0) {
-            file->close();
-            delete file;
-            delete t;
-            file = NULL;
-            stat = 0;
-            t = NULL;
-        } else
-            qWarning("data is NULL, but length is not 0.");
-        return;
+    while(*((quint8 **)queue) != NULL) {
+        qint64 size = *((qint64 *)(queue + sizeof(quint8 *)));
+        quint8 *old = queue;
+        if(size > 0) {
+            file->write((char *)(queue + sizeof(quint8 *) + sizeof(qint64)), size);
+            stat += size;
+            if(t->elapsed() > 1000) {
+                statusBar()->showMessage(QString("Speed: %1 Mbps").arg((double)stat * 8000 / t->elapsed() / 1024 / 1024));
+                stat = 0;
+                t->restart();
+            }
+        } else if(size != -1)
+            qWarning("Wrong Tcp Queue");
+        queue = *((quint8 **)queue);
+        delete []old;
     }
-    file->write((char *)data, length);
-    delete []data;
-    stat += length;
-    if(t->elapsed() > 1000) {
-        statusBar()->showMessage(QString("Speed: %1 Mbps").arg((double)stat * 8000 / t->elapsed() / 1024 / 1024));
+    if(*((qint64 *)(queue + sizeof(quint8 *))) == 0) {
+        file->close();
+        delete file;
+        delete t;
+        delete timer;
+        file = NULL;
         stat = 0;
-        t->restart();
+        t = NULL;
+        timer = NULL;
+        delete []queue;
+        queue = NULL;
     }
+}
+
+void MainWindow::write_data_tick()
+{
+    tcp_receive_data(NULL);
 }
 
 void MainWindow::tcp_disconnected()
@@ -738,7 +757,7 @@ void TcpWorker::run()
 {
     TcpCom *sock = new TcpCom();
     connect(window, SIGNAL(tcp_user_disconnect()), sock, SLOT(user_disconnect()));
-    connect(sock, SIGNAL(send_data(quint8 *, quint32)), window, SLOT(tcp_receive_data(quint8 *, quint32)));
+    connect(sock, SIGNAL(send_data(quint8 *)), window, SLOT(tcp_receive_data(quint8 *)));
     connect(sock, SIGNAL(ui_status(QString)), window->statusBar(), SLOT(showMessage(QString)));
     connect(sock, SIGNAL(ui_tcp_connected(bool)), window, SLOT(tcp_set_connected(bool)));
     connect(sock, SIGNAL(ui_tcp_enabled(bool)), window, SLOT(tcp_set_enabled(bool)));
@@ -756,14 +775,22 @@ TcpCom::TcpCom(QObject *parent) : QTcpSocket(parent)
 
 void TcpCom::on_connected()
 {
+    queue = new quint8[sizeof(quint8 *) + sizeof(qint64)];
     emit ui_status("Connected.");
     emit ui_tcp_connected(true);
     emit ui_tcp_enabled(true);
+    *((quint8 **)queue) = NULL;
+    *((qint64 *)(queue + sizeof(quint8 *))) = -1;
+    emit send_data(queue);
 }
 
 void TcpCom::on_disconnected()
 {
-    emit send_data(NULL, 0);
+    quint8 *data = new quint8[sizeof(quint8 *) + sizeof(qint64)];
+    *((quint8 **)queue) = data;
+    queue = data;
+    *((quint8 **)queue) = NULL;
+    *((qint64 *)(queue + sizeof(quint8 *))) = 0;
     deleteLater();
     emit quit();
 }
@@ -773,9 +800,16 @@ void TcpCom::on_readyRead()
     qint64 size = bytesAvailable();
     if(size <= 0)
         return;
-    quint8 *data = new quint8[size];
-    size = read((char *)data, size);
-    emit send_data(data, size);
+    quint8 *data = new quint8[size + sizeof(quint8 *) + sizeof(qint64)];
+    size = read((char *)(data + sizeof(quint8 *) + sizeof(qint64)), size);
+    if(size <= 0) {
+        delete []data;
+        return;
+    }
+    *((quint8 **)queue) = data;
+    queue = data;
+    *((quint8 **)queue) = NULL;
+    *((qint64 *)(queue + sizeof(quint8 *))) = size;
 }
 
 void TcpCom::user_disconnect()
