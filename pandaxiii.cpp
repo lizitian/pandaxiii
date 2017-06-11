@@ -306,7 +306,6 @@ void MainWindow::on_CFigDAC_clicked()
 
 void MainWindow::on_connect_clicked(bool checked)
 {
-    static TcpWorker *tcp_worker = NULL;
     if((tcp_worker != NULL) == checked) {
         qWarning("Internal Error - Socket Status Error.");
         statusBar()->showMessage("Connect Error.");
@@ -321,25 +320,13 @@ void MainWindow::on_connect_clicked(bool checked)
             tcp_set_enabled(true);
             return;
         }
-        tcp_worker = new TcpWorker(ipaddr(), tcp_port());
-        connect(tcp_worker, SIGNAL(send_data(quint8 *, quint32)), this, SLOT(receive_data(quint8 *, quint32)));
-        connect(tcp_worker, SIGNAL(ui_status(QString)), statusBar(), SLOT(showMessage(QString)));
-        connect(tcp_worker, SIGNAL(ui_tcp_connected(bool)), this, SLOT(tcp_set_connected(bool)));
-        connect(tcp_worker, SIGNAL(ui_tcp_enabled(bool)), this, SLOT(tcp_set_enabled(bool)));
-        connect(this, SIGNAL(disconnect_from_host()), tcp_worker, SLOT(user_disconnect()));
+        tcp_worker = new TcpWorker(ipaddr(), tcp_port(), this);
         tcp_worker->start();
-    } else {
-        emit disconnect_from_host();
-        tcp_worker->wait();
-        delete tcp_worker;
-        tcp_worker = NULL;
-        statusBar()->showMessage("Disconnected.");
-        tcp_set_connected(false);
-        tcp_set_enabled(true);
-    }
+    } else
+        emit tcp_user_disconnect();
 }
 
-void MainWindow::receive_data(quint8 *data, quint32 length)
+void MainWindow::tcp_receive_data(quint8 *data, quint32 length)
 {
     static QFile *file = NULL;
     static qint64 stat = 0;
@@ -370,6 +357,17 @@ void MainWindow::receive_data(quint8 *data, quint32 length)
         stat = 0;
         t->restart();
     }
+}
+
+void MainWindow::tcp_disconnected()
+{
+    tcp_worker->quit();
+    tcp_worker->wait();
+    delete tcp_worker;
+    tcp_worker = NULL;
+    statusBar()->showMessage("Disconnected.");
+    tcp_set_connected(false);
+    tcp_set_enabled(true);
 }
 
 static QPicture background_picture(qreal aspect_ratio)
@@ -729,47 +727,58 @@ bool TcpData::read32(quint32 *data)
     return true;
 }
 
-TcpWorker::TcpWorker(const QHostAddress &ipaddr, quint16 port)
+TcpWorker::TcpWorker(const QHostAddress &ipaddr, quint16 port, MainWindow *window)
 {
     this->ipaddr = ipaddr;
     this->port = port;
+    this->window = window;
 }
 
 void TcpWorker::run()
 {
-    sock = new QTcpSocket();
-    connect(sock, SIGNAL(connected()), this, SLOT(on_connected()));
-    connect(sock, SIGNAL(disconnected()), this, SLOT(on_disconnected()));
-    connect(sock, SIGNAL(readyRead()), this, SLOT(on_readyRead()));
+    TcpCom *sock = new TcpCom();
+    connect(window, SIGNAL(tcp_user_disconnect()), sock, SLOT(user_disconnect()));
+    connect(sock, SIGNAL(send_data(quint8 *, quint32)), window, SLOT(tcp_receive_data(quint8 *, quint32)));
+    connect(sock, SIGNAL(ui_status(QString)), window->statusBar(), SLOT(showMessage(QString)));
+    connect(sock, SIGNAL(ui_tcp_connected(bool)), window, SLOT(tcp_set_connected(bool)));
+    connect(sock, SIGNAL(ui_tcp_enabled(bool)), window, SLOT(tcp_set_enabled(bool)));
+    connect(sock, SIGNAL(quit()), window, SLOT(tcp_disconnected()));
     sock->connectToHost(ipaddr, port);
     exec();
 }
 
-void TcpWorker::on_connected()
+TcpCom::TcpCom(QObject *parent) : QTcpSocket(parent)
+{
+    connect(this, SIGNAL(connected()), this, SLOT(on_connected()));
+    connect(this, SIGNAL(disconnected()), this, SLOT(on_disconnected()));
+    connect(this, SIGNAL(readyRead()), this, SLOT(on_readyRead()));
+}
+
+void TcpCom::on_connected()
 {
     emit ui_status("Connected.");
     emit ui_tcp_connected(true);
     emit ui_tcp_enabled(true);
 }
 
-void TcpWorker::on_disconnected()
+void TcpCom::on_disconnected()
 {
     emit send_data(NULL, 0);
-    sock->deleteLater();
+    deleteLater();
     emit quit();
 }
 
-void TcpWorker::on_readyRead()
+void TcpCom::on_readyRead()
 {
-    qint64 size = sock->bytesAvailable(), readed;
+    qint64 size = bytesAvailable();
     if(size <= 0)
         return;
     quint8 *data = new quint8[size];
-    readed = sock->read((char *)data, size);
-    emit send_data(data, readed);
+    size = read((char *)data, size);
+    emit send_data(data, size);
 }
 
-void TcpWorker::user_disconnect()
+void TcpCom::user_disconnect()
 {
-    sock->disconnectFromHost();
+    disconnectFromHost();
 }

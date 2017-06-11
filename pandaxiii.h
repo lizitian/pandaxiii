@@ -6,6 +6,7 @@ namespace Ui
 {
     class MainWindow;
 }
+class TcpWorker;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -22,13 +23,15 @@ private slots:
     void on_TriggerEn_clicked(bool);
     void on_CFigDAC_clicked();
     void on_connect_clicked(bool);
-    void receive_data(quint8 *, quint32);
+    void tcp_receive_data(quint8 *, quint32);
+    void tcp_disconnected();
     void on_draw_clicked();
     void on_baselinebutton_clicked();
     void tcp_set_enabled(bool);
     void tcp_set_connected(bool);
 private:
     Ui::MainWindow *ui;
+    TcpWorker *tcp_worker = NULL;
     QHostAddress ipaddr();
     quint16 rbcp_port();
     quint32 rbcp_address();
@@ -52,7 +55,7 @@ private:
     qreal tcp_canvas_get_aspect_ratio();
     void baseline_canvas_set_picture(const QPicture &);
 signals:
-    void disconnect_from_host();
+    void tcp_user_disconnect();
 };
 #define RBCP_CMD_WR 0x80
 #define RBCP_CMD_RD 0xc0
@@ -87,22 +90,29 @@ class TcpWorker : public QThread
 {
     Q_OBJECT
 public:
-    TcpWorker(const QHostAddress &, quint16);
+    TcpWorker(const QHostAddress &, quint16, MainWindow *);
 protected:
     virtual void run();
+private:
+    QHostAddress ipaddr;
+    quint16 port;
+    MainWindow *window;
+};
+class TcpCom : public QTcpSocket
+{
+    Q_OBJECT
+public:
+    TcpCom(QObject *parent = 0);
 private slots:
     void on_connected();
     void on_disconnected();
     void on_readyRead();
     void user_disconnect();
-private:
-    QTcpSocket *sock;
-    QHostAddress ipaddr;
-    quint16 port;
 signals:
     void send_data(quint8 *, quint32);
     void ui_status(QString);
     void ui_tcp_connected(bool);
     void ui_tcp_enabled(bool);
+    void quit();
 };
 #endif
