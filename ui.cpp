@@ -71,8 +71,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->trigdelay->addItem(QString::fromUtf8("80us"), 32);
     ui->dacthres->addItem(QString::fromUtf8("0"), 0);
     ui->dacthres->addItem(QString::fromUtf8("1V"), 5);
-    ui->chip->addItem(QString::fromUtf8("Chip 1"), 1);
-    ui->chip->addItem(QString::fromUtf8("Chip 2"), 2);
+    ui->chip->addItem(QString::fromUtf8("Chip a"), 1);
+    ui->chip->addItem(QString::fromUtf8("Chip b"), 2);
+    ui->chip->addItem(QString::fromUtf8("Chip c"), 3);
+    ui->chip->addItem(QString::fromUtf8("Chip d"), 4);
 
     QLabel *label; // memory
     for(qint32 i = 0; i <= 15; i++) {

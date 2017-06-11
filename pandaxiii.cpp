@@ -652,6 +652,8 @@ bool rbcp_write(const QHostAddress &ipaddr, quint16 port, quint32 address, quint
     return false;
 }
 
+const quint16 TcpData::chipbits[] = { 0xa000, 0xb000, 0xc000, 0xd000 };
+
 TcpData::TcpData(const QString &name)
 {
     file = new QFile(name);
@@ -664,51 +666,49 @@ TcpData::~TcpData()
 
 bool TcpData::read()
 {
-    quint32 data;
+    quint16 data;
+    qint64 chip = -1;
     file->open(QIODevice::ReadOnly);
-    if(!read32(&data) || qFromBigEndian(data) != header) {
+    if(!read16(&data) || qFromBigEndian(data) != header) {
         qWarning("Wrong Header.");
         file->close();
         return false;
     }
-    if(!read32(&data)) {
+    if(!read16(&data) || !read16(&data) || !read16(&data)) {
         file->close();
         return false;
     }
-    options = qFromBigEndian(data);
+    if(!read16(&data)) {
+        qWarning("Wrong Header.");
+        file->close();
+        return false;
+    }
+    for(qint64 i = 0; i < (qint64)(sizeof(chipbits) / sizeof(chipbits[0])); i++)
+        if(qFromBigEndian(data) == chipbits[i]) {
+            chip = i;
+            break;
+        }
+    if(chip == -1) {
+        qWarning("Wrong Header.");
+        file->close();
+        return false;
+    }
+    if(!read16(&data) || qFromBigEndian(data) != chipbits[chip]) {
+        qWarning("Wrong Header.");
+        file->close();
+        return false;
+    }
     for(qint64 i = 0; i < units; i++) {
-        if(!read32(&data) || qFromBigEndian(data) != gap1) {
-            qWarning() << "Wrong Gap, Unit:" << i << '.';
-            file->close();
-            return false;
-        }
-        if(!read32(&data) || qFromBigEndian(data) != gap2) {
-            qWarning() << "Wrong Gap, Unit:" << i << '.';
-            file->close();
-            return false;
-        }
         for(qint64 j = 0; j < channels; j++) {
-            if(!read32(&data)) {
+            if(!read16(&data) || (qFromBigEndian(data) & ~datamask) != chipbits[chip]) {
+                qWarning() << "Wrong Data, Chip:" << chip + 1 << ", Channel:" << j << ", Unit:" << i << '.';
                 file->close();
                 return false;
             }
-            chip1[j][i] = qFromBigEndian(data) >> 16;
-            if((chip1[j][i] & ~datamask) != chip1bits) {
-                qWarning() << "Wrong Data, Chip: 1 , Channel:" << j << ", Unit:" << i << '.' << chip1[j][i];
-                file->close();
-                return false;
-            }
-            chip1[j][i] &= datamask;
-            chip2[j][i] = qFromBigEndian(data);
-            if((chip2[j][i] & ~datamask) != chip2bits) {
-                qWarning() << "Wrong Data, Chip: 2 , Channel:" << j << ", Unit:" << i << '.';
-                file->close();
-                return false;
-            }
-            chip2[j][i] &= datamask;
+            this->data[chip][j][i] = qFromBigEndian(data) & datamask;
         }
     }
-    if(!read32(&data) || qFromBigEndian(data) != footer) {
+    if(!read16(&data) || qFromBigEndian(data) != footer) {
         qWarning("Wrong Footer.");
         file->close();
         return false;
@@ -719,27 +719,20 @@ bool TcpData::read()
 
 bool TcpData::get_data(qint64 chip, qint64 channel, quint16 *data)
 {
-    if(channel < 0 || channel >= channels) {
-        qWarning("Wrong Channel.");
+    if(chip <= 0 || chip > (qint64)(sizeof(chipbits) / sizeof(chipbits[0])) || channel < 0 || channel >= channels) {
+        qWarning("Wrong Channel Or Chip.");
         return false;
     }
     for(qint64 i = 0; i < units; i++)
-        if(chip == 1)
-            data[i] = chip1[channel][i];
-        else if(chip == 2)
-            data[i] = chip2[channel][i];
-        else {
-            qWarning("Wrong Chip");
-            return false;
-        }
+        data[i] = this->data[chip - 1][channel][i];
     return true;
 }
 
-bool TcpData::read32(quint32 *data)
+bool TcpData::read16(quint16 *data)
 {
     qint64 readed;
-    readed = file->read((char *)data, sizeof(quint32));
-    if(readed != sizeof(quint32)) {
+    readed = file->read((char *)data, sizeof(quint16));
+    if(readed != sizeof(quint16)) {
         qWarning("Read file error.");
         return false;
     }

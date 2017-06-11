@@ -79,13 +79,11 @@ public:
     bool read();
     bool get_data(qint64, qint64, quint16 *);
 private:
-    static const quint32 header = 0x55aa55aa, footer = 0xffffffff, gap1 = 0x8002c000, gap2 = 0x8002c000;
-    static const quint16 chip1bits = 0x8000, chip2bits = 0xc000;
-    quint32 options;
-    quint16 chip1[channels][units];
-    quint16 chip2[channels][units];
+    static const quint16 header = 0xeeee, footer = 0xffff;
+    static const quint16 chipbits[4];
+    quint16 data[sizeof(chipbits) / sizeof(chipbits[0])][channels][units];
     QFile *file;
-    bool read32(quint32 *);
+    bool read16(quint16 *);
 };
 class TcpWorker : public QThread
 {
