@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     for(qint32 i = 0; i <= 15; i++) {
         label = new QLabel(ui->baselinetest);
         label->setGeometry(QRect(60 + 670 * i / 15, 510, 30, 20));
-        label->setText(QString().sprintf("%d", i * 63 / 15));
+        label->setText(QString().sprintf("%d", i * 255 / 15));
     }
     for(qint32 i = 0; i <= 8; i++) {
         label = new QLabel(ui->baselinetest);

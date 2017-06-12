@@ -77,15 +77,15 @@ public:
     TcpData(const QString &);
     ~TcpData();
     static const quint16 datamask = 0x0fff;
-    static const qint64 channels = 64, units = 512;
+    static const quint16 chipbits[4];
+    static const qint64 chips = sizeof(chipbits) / sizeof(chipbits[0]), channels = 64, units = 512;
     bool read(quint16 packet);
     bool get_data(qint64, qint64, quint16 *);
     quint32 get_trigger();
 private:
     static const quint16 header = 0xeeee, footer = 0xffff;
-    static const quint16 chipbits[4];
     quint32 trigger;
-    quint16 data[sizeof(chipbits) / sizeof(chipbits[0])][channels][units];
+    quint16 data[chips][channels][units];
     QFile *file;
     bool read16(quint16 *);
 };

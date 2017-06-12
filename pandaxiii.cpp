@@ -446,7 +446,7 @@ void MainWindow::on_baselinebutton_clicked()
 {
     QPicture picture;
     QPainter painter;
-    TcpData *tcp_data = new TcpData("data.dat");
+    TcpData *tcp_data = new TcpData(filename);
     if(!tcp_data->read(tcp_packet())) {
         delete tcp_data;
         return;
@@ -456,18 +456,19 @@ void MainWindow::on_baselinebutton_clicked()
     painter.drawPicture(0, 0, background_picture(tcp_canvas_get_aspect_ratio())); // bug
     painter.setPen(Qt::NoPen);
     painter.setBrush(Qt::white);
-    for(qint64 i = 0; i < TcpData::channels; i++) {
-        qint64 sum = 0;
-        quint16 data[TcpData::units];
-        if(!tcp_data->get_data(tcp_chip(), i, data)) {
-            delete tcp_data;
-            return;
+    for(qint64 chip = 0; chip < TcpData::chips; chip++)
+        for(qint64 i = 0; i < TcpData::channels; i++) {
+            qint64 sum = 0;
+            quint16 data[TcpData::units];
+            if(!tcp_data->get_data(chip, i, data)) {
+                delete tcp_data;
+                return;
+            }
+            for(qint64 j = 0; j < TcpData::units; j++)
+                sum += data[j];
+            qreal height = (qreal)sum / TcpData::units / TcpData::datamask;
+            painter.drawRect(QRectF((qreal)(chip * TcpData::channels + i) / (TcpData::chips * TcpData::channels), 1 - height, 1.0 / (TcpData::chips * TcpData::channels), height));
         }
-        for(qint64 j = 0; j < TcpData::units; j++)
-            sum += data[j];
-        qreal height = (qreal)sum / TcpData::units / TcpData::datamask;
-        painter.drawRect(QRectF((qreal)i / TcpData::channels, 1 - height, 1.0 / TcpData::channels, height));
-    }
     delete tcp_data;
     painter.end();
     baseline_canvas_set_picture(picture);
@@ -677,7 +678,7 @@ bool TcpData::read(quint16 packet)
     quint16 data;
     quint16 flags = 0;
     file->open(QIODevice::ReadOnly);
-    while(flags != 0xffff >> (16 - sizeof(chipbits) / sizeof(chipbits[0]))) {
+    while(flags != 0xffff >> (16 - chips)) {
         qint64 chip = -1;
         if(!read16(&data) || qFromBigEndian(data) != header) {
             qWarning("Wrong Header.");
@@ -709,7 +710,7 @@ bool TcpData::read(quint16 packet)
             return false;
         }
         if(chip != -2) {
-            for(qint64 i = 0; i < (qint64)(sizeof(chipbits) / sizeof(chipbits[0])); i++)
+            for(qint64 i = 0; i < chips; i++)
                 if((qFromBigEndian(data) & ~datamask) == chipbits[i]) {
                     chip = i;
                     break;
@@ -754,7 +755,7 @@ bool TcpData::read(quint16 packet)
 
 bool TcpData::get_data(qint64 chip, qint64 channel, quint16 *data)
 {
-    if(chip <= 0 || chip > (qint64)(sizeof(chipbits) / sizeof(chipbits[0])) || channel < 0 || channel >= channels) {
+    if(chip <= 0 || chip > chips || channel < 0 || channel >= channels) {
         qWarning("Wrong Channel Or Chip.");
         return false;
     }
