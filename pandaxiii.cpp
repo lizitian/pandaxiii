@@ -417,7 +417,7 @@ void MainWindow::on_draw_clicked()
     QPainterPath path;
     TcpData *tcp_data = new TcpData(filename);
     quint16 data[TcpData::units];
-    qreal avg = 0, sum_square = 0, s;
+    qreal avg = 0, sum_square = 0;
     if(!(tcp_data->read(tcp_packet()) && tcp_data->get_data(tcp_chip(), tcp_channel(), data))) {
         delete tcp_data;
         return;
@@ -427,7 +427,7 @@ void MainWindow::on_draw_clicked()
     avg /= TcpData::units;
     for(qint64 i = 0; i < TcpData::units; i++)
         sum_square += (data[i] - avg) * (data[i] - avg);
-    statusBar()->showMessage(QString().sprintf("Trigger ID: 0x%08x, avg = %lf, rms = %lf", tcp_data->get_trigger(), avg, sqrt(sum_square / (TcpData::units - 1))));
+    statusBar()->showMessage(QString().sprintf("Trigger ID: 0x%08x , ", tcp_data->get_trigger()).append(QString("avg =%1, rms =%2").arg(avg).arg(sqrt(sum_square / (TcpData::units - 1)))));
     delete tcp_data;
     path.moveTo(0, (qreal)(TcpData::datamask - data[0]) / TcpData::datamask);
     for(qint64 i = 1; i < TcpData::units; i++)
