@@ -61,29 +61,50 @@ void MainWindow::on_read_clicked()
     delete []data;
 }
 
-void MainWindow::on_errortest_clicked()
+void MainWindow::on_errortest_clicked(bool checked)
 {
+    static QTimer *t = NULL;
     QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
-    quint32 address = rbcp_address();
-    bool ok;
-    for(quint32 i = 0; i < 0x10000; i++) {
-        ok = rbcp_write(ip_address, port, address, i >> 8);
-        if(!ok)
-            break;
-        ok = rbcp_write(ip_address, port, address, i);
-        if(!ok)
-            break;
+    quint8 mask = sfp_status_mask(3);
+    if(checked) {
+        if(!rbcp_write(ip_address, port, 0xfffe002c, mask) || !rbcp_write(ip_address, port, 0xfffe002b, mask)) {
+            statusBar()->showMessage("Error rate test error.");
+            return;
+        }
+        this->t = new QTime();
+        this->t->start();
+        t = new QTimer();
+        connect(t, SIGNAL(timeout()), this, SLOT(errortest_tick()));
+        t->start(1000);
+    } else {
+        delete t;
+        t = NULL;
+        delete this->t;
+        this->t = NULL;
     }
-    if(ok)
-        statusBar()->showMessage("PLL Configure Success.");
-    else
-        statusBar()->showMessage("PLL Configure Fail.");
+}
+
+void MainWindow::errortest_tick()
+{
+    quint8 mask = sfp_status_mask(3);
+    QString msg = "Error Rate: ";
+    for(qint64 i = 0; i < 5; i++) {
+        quint8 data;
+        if(!(mask & (0x01 << i)))
+            continue;
+        if(!rbcp_read(ipaddr(), rbcp_port(), 1, 0xfffe0036 + i, &data)) {
+            msg = "Error.";
+            return;
+        }
+        msg.append(QString("SFP%1 %2 ").arg(i).arg((qreal)data / (800000000 * t->elapsed())));
+    }
+    statusBar()->showMessage(msg);
 }
 
 void MainWindow::on_CFigPLL_clicked()
 {
-    quint8 samplerate = rbcp_samplerate() & 0x0f;
+    quint8 samplerate = fec_samplerate() & 0x0f;
     quint8 dat1 = samplerate | (samplerate << 4);
     quint8 data[] = {
         0x19, 0x00, 0x18, 0x06,
@@ -140,12 +161,12 @@ void MainWindow::on_CFigPLL_clicked()
 
 void MainWindow::on_AGET_test_clicked()
 {
-    quint8 modesel = rbcp_modesel() & 0x03;
-    quint8 testcap = rbcp_testcap() & 0x03;
-    quint8 vicm = rbcp_vicm() & 0x03;
-    quint8 agetthres = rbcp_agetthres() & 0x07;
-    quint8 gaincsa = rbcp_gaincsa() & 0x03;
-    quint8 chthres = rbcp_chthres() & 0x0f;
+    quint8 modesel = fec_modesel() & 0x03;
+    quint8 testcap = fec_testcap() & 0x03;
+    quint8 vicm = fec_vicm() & 0x03;
+    quint8 agetthres = fec_agetthres() & 0x07;
+    quint8 gaincsa = fec_gaincsa() & 0x03;
+    quint8 chthres = fec_chthres() & 0x0f;
     quint8 dat1 = gaincsa | (gaincsa << 2) | (gaincsa << 4) | (gaincsa << 6);
     quint8 dat2 = chthres | (chthres << 4);
     quint8 data[] = {
@@ -236,7 +257,7 @@ void MainWindow::on_AGET_test_clicked()
 
 void MainWindow::on_StartSCA_clicked()
 {
-    quint8 scachannel = rbcp_scachannel() & 0x07;
+    quint8 scachannel = fec_scachannel() & 0x07;
     quint8 data[] = {
         (quint8)((scachannel << 1) | 0x51), 0x08, 0x00, 0x00,
     };
@@ -262,7 +283,7 @@ void MainWindow::on_TriggerEn_clicked(bool checked)
     };
     if(checked) {
         data[1] = 0x0f;
-        data[2] = ((rbcp_trigselec() << 6) & 0xc0) | (rbcp_trigdelay() & 0x3f);
+        data[2] = ((fec_trigselec() << 6) & 0xc0) | (fec_trigdelay() & 0x3f);
     }
     QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
@@ -281,7 +302,7 @@ void MainWindow::on_TriggerEn_clicked(bool checked)
 
 void MainWindow::on_CFigDAC_clicked()
 {
-    quint8 dacthres = rbcp_dacthres() & 0x0f;
+    quint8 dacthres = fec_dacthres() & 0x0f;
     quint8 data[] = {
         0x38, 0x26, 0x10, 0x00,
         0x28, 0x80, dacthres, 0x00,

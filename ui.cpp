@@ -126,6 +126,77 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+quint8 MainWindow::spf_status_mask(qint64 status)
+{
+    quint8 mask = 0;
+    if(ui->sfp0->itemData(ui->sfp0->currentIndex()).toInt() == status)
+        mask |= 0x01;
+    if(ui->sfp1->itemData(ui->sfp1->currentIndex()).toInt() == status)
+        mask |= 0x02;
+    if(ui->sfp2->itemData(ui->sfp2->currentIndex()).toInt() == status)
+        mask |= 0x04;
+    if(ui->sfp3->itemData(ui->sfp3->currentIndex()).toInt() == status)
+        mask |= 0x08;
+    if(ui->sfp4->itemData(ui->sfp4->currentIndex()).toInt() == status)
+        mask |= 0x10;
+    return mask;
+}
+
+quint8 MainWindow::fec_samplerate()
+{
+    return ui->samplerate->itemData(ui->samplerate->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_vicm()
+{
+    return ui->vicm->itemData(ui->vicm->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_gaincsa()
+{
+    return ui->gaincsa->itemData(ui->gaincsa->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_agetthres()
+{
+    return ui->agetthres->itemData(ui->agetthres->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_testcap()
+{
+    return ui->testcap->itemData(ui->testcap->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_modesel()
+{
+    return ui->modesel->itemData(ui->modesel->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_scachannel()
+{
+    return ui->scachannel->itemData(ui->scachannel->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_chthres()
+{
+    return ui->chthres->itemData(ui->chthres->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_trigselec()
+{
+    return ui->trigselec->itemData(ui->trigselec->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_trigdelay()
+{
+    return ui->trigdelay->itemData(ui->trigdelay->currentIndex()).toUInt();
+}
+
+quint8 MainWindow::fec_dacthres()
+{
+    return ui->dacthres->itemData(ui->dacthres->currentIndex()).toUInt();
+}
+
 QHostAddress MainWindow::ipaddr()
 {
     return QHostAddress(ui->ipaddr->text());
@@ -141,9 +212,9 @@ quint32 MainWindow::rbcp_address()
     return ui->address->text().toUInt(0, 0);
 }
 
-QString MainWindow::rbcp_data()
+quint16 MainWindow::tcp_port()
 {
-    return ui->data->text();
+    return ui->tcpport->text().toUInt(0, 0);
 }
 
 quint8 MainWindow::rbcp_length()
@@ -151,69 +222,14 @@ quint8 MainWindow::rbcp_length()
     return ui->length->text().toUInt(0, 0);
 }
 
-quint8 MainWindow::rbcp_samplerate()
+QString MainWindow::rbcp_data()
 {
-    return ui->samplerate->itemData(ui->samplerate->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_vicm()
-{
-    return ui->vicm->itemData(ui->vicm->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_gaincsa()
-{
-    return ui->gaincsa->itemData(ui->gaincsa->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_agetthres()
-{
-    return ui->agetthres->itemData(ui->agetthres->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_testcap()
-{
-    return ui->testcap->itemData(ui->testcap->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_modesel()
-{
-    return ui->modesel->itemData(ui->modesel->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_scachannel()
-{
-    return ui->scachannel->itemData(ui->scachannel->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_chthres()
-{
-    return ui->chthres->itemData(ui->chthres->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_trigselec()
-{
-    return ui->trigselec->itemData(ui->trigselec->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_trigdelay()
-{
-    return ui->trigdelay->itemData(ui->trigdelay->currentIndex()).toUInt();
-}
-
-quint8 MainWindow::rbcp_dacthres()
-{
-    return ui->dacthres->itemData(ui->dacthres->currentIndex()).toUInt();
-}
-
-quint16 MainWindow::tcp_port()
-{
-    return ui->tcpport->text().toUInt(0, 0);
+    return ui->data->text();
 }
 
 qint64 MainWindow::tcp_packet()
 {
-    return ui->packet->text().toUInt(0, 0);
+    return ui->packet->text().toInt(0, 0);
 }
 
 qint64 MainWindow::tcp_chip()
@@ -223,7 +239,7 @@ qint64 MainWindow::tcp_chip()
 
 qint64 MainWindow::tcp_channel()
 {
-    return ui->channel->text().toUInt(0, 0);
+    return ui->channel->text().toInt(0, 0);
 }
 
 qint64 MainWindow::baseline_mode()

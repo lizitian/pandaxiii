@@ -527,6 +527,55 @@ QGroupBox::title {
       </item>
      </layout>
     </widget>
+    <widget class="QGroupBox" name="readdata">
+     <property name="geometry">
+      <rect>
+       <x>420</x>
+       <y>100</y>
+       <width>240</width>
+       <height>130</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Read Data</string>
+     </property>
+     <widget class="QLabel" name="lengthlabel">
+      <property name="geometry">
+       <rect>
+        <x>25</x>
+        <y>40</y>
+        <width>45</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Length:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="length">
+      <property name="geometry">
+       <rect>
+        <x>80</x>
+        <y>36</y>
+        <width>120</width>
+        <height>30</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="read">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>80</y>
+        <width>100</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>read</string>
+      </property>
+     </widget>
+    </widget>
     <widget class="QGroupBox" name="writedata">
      <property name="geometry">
       <rect>
@@ -579,55 +628,6 @@ QGroupBox::title {
       </property>
      </widget>
     </widget>
-    <widget class="QGroupBox" name="readdata">
-     <property name="geometry">
-      <rect>
-       <x>420</x>
-       <y>100</y>
-       <width>240</width>
-       <height>130</height>
-      </rect>
-     </property>
-     <property name="title">
-      <string>Read Data</string>
-     </property>
-     <widget class="QLabel" name="lengthlabel">
-      <property name="geometry">
-       <rect>
-        <x>25</x>
-        <y>40</y>
-        <width>45</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Length:</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="length">
-      <property name="geometry">
-       <rect>
-        <x>80</x>
-        <y>36</y>
-        <width>120</width>
-        <height>30</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="read">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>80</y>
-        <width>100</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>read</string>
-      </property>
-     </widget>
-    </widget>
     <widget class="QPushButton" name="errortest">
      <property name="geometry">
       <rect>
@@ -639,6 +639,9 @@ QGroupBox::title {
      </property>
      <property name="text">
       <string>误码测试</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
      </property>
     </widget>
    </widget>
