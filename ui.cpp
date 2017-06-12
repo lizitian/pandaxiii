@@ -189,6 +189,11 @@ quint16 MainWindow::tcp_port()
     return ui->tcpport->text().toUInt(0, 0);
 }
 
+qint64 MainWindow::tcp_packet()
+{
+    return ui->packet->text().toUInt(0, 0);
+}
+
 qint64 MainWindow::tcp_chip()
 {
     return ui->chip->itemData(ui->chip->currentIndex()).toInt();

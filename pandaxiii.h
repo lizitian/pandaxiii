@@ -33,6 +33,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     TcpWorker *tcp_worker = NULL;
+    QString filename;
     QHostAddress ipaddr();
     quint16 rbcp_port();
     quint32 rbcp_address();
@@ -50,6 +51,7 @@ private:
     quint8 rbcp_trigdelay();
     quint8 rbcp_dacthres();
     quint16 tcp_port();
+    qint64 tcp_packet();
     qint64 tcp_chip();
     qint64 tcp_channel();
     void tcp_canvas_set_picture(const QPicture &);
@@ -76,11 +78,13 @@ public:
     ~TcpData();
     static const quint16 datamask = 0x0fff;
     static const qint64 channels = 64, units = 512;
-    bool read();
+    bool read(quint16 packet);
     bool get_data(qint64, qint64, quint16 *);
+    quint32 get_trigger();
 private:
     static const quint16 header = 0xeeee, footer = 0xffff;
     static const quint16 chipbits[4];
+    quint32 trigger;
     quint16 data[sizeof(chipbits) / sizeof(chipbits[0])][channels][units];
     QFile *file;
     bool read16(quint16 *);

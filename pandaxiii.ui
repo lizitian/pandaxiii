@@ -723,7 +723,7 @@ QGroupBox::title {
     <widget class="QComboBox" name="chip">
      <property name="geometry">
       <rect>
-       <x>150</x>
+       <x>270</x>
        <y>80</y>
        <width>100</width>
        <height>30</height>
@@ -733,7 +733,7 @@ QGroupBox::title {
     <widget class="QLabel" name="channellabel">
      <property name="geometry">
       <rect>
-       <x>290</x>
+       <x>410</x>
        <y>85</y>
        <width>51</width>
        <height>20</height>
@@ -746,7 +746,7 @@ QGroupBox::title {
     <widget class="QLineEdit" name="channel">
      <property name="geometry">
       <rect>
-       <x>360</x>
+       <x>480</x>
        <y>80</y>
        <width>100</width>
        <height>30</height>
@@ -756,7 +756,7 @@ QGroupBox::title {
     <widget class="QPushButton" name="draw">
      <property name="geometry">
       <rect>
-       <x>520</x>
+       <x>640</x>
        <y>80</y>
        <width>100</width>
        <height>30</height>
@@ -777,6 +777,29 @@ QGroupBox::title {
      </property>
      <property name="styleSheet">
       <string notr="true">background-color: black;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="packetlabel">
+     <property name="geometry">
+      <rect>
+       <x>49</x>
+       <y>85</y>
+       <width>42</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Packet:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="packet">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>80</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
      </property>
     </widget>
    </widget>
