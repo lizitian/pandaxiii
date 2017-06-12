@@ -473,7 +473,7 @@ void MainWindow::on_baselinebutton_clicked()
                 qreal sum_square = 0;
                 for(qint64 j = 0; j < TcpData::units; j++)
                     sum_square += (data[j] - avg) * (data[j] - avg);
-                height = sqrt(sum_square / (TcpData::units - 1));
+                height = sqrt(sum_square / (TcpData::units - 1)) / TcpData::datamask;
             }
             painter.drawRect(QRectF((qreal)(chip * TcpData::channels + i) / (TcpData::chips * TcpData::channels), 1 - height, 1.0 / (TcpData::chips * TcpData::channels), height));
         }
