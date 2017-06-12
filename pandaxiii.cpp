@@ -470,7 +470,7 @@ void MainWindow::on_baselinebutton_clicked()
             if(baseline_mode() == 0)
                 height = avg / TcpData::datamask;
             else {
-                qreal sum_square;
+                qreal sum_square = 0;
                 for(qint64 j = 0; j < TcpData::units; j++)
                     sum_square += (data[j] - avg) * (data[j] - avg);
                 height = sqrt(sum_square / (TcpData::units - 1));
