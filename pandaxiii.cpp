@@ -460,7 +460,7 @@ void MainWindow::on_baselinebutton_clicked()
         for(qint64 i = 0; i < TcpData::channels; i++) {
             qint64 sum = 0;
             quint16 data[TcpData::units];
-            if(!tcp_data->get_data(chip, i, data)) {
+            if(!tcp_data->get_data(chip + 1, i, data)) {
                 delete tcp_data;
                 return;
             }
