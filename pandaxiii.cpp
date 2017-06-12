@@ -679,12 +679,12 @@ bool TcpData::read()
             return false;
         }
         for(qint64 i = 0; i < units; i++) {
-            if(!read16(&data) || qFromBigEndian(data) != chipbits[chip]) {
+            if(!read16(&data) || (qFromBigEndian(data) & ~datamask) != chipbits[chip]) {
                 qWarning("Wrong Header.");
                 file->close();
                 return false;
             }
-            if(!read16(&data) || qFromBigEndian(data) != chipbits[chip]) {
+            if(!read16(&data) || (qFromBigEndian(data) & ~datamask) != chipbits[chip]) {
                 qWarning("Wrong Header.");
                 file->close();
                 return false;
