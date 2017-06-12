@@ -54,6 +54,7 @@ private:
     qint64 tcp_packet();
     qint64 tcp_chip();
     qint64 tcp_channel();
+    qint64 baseline_mode();
     void tcp_canvas_set_picture(const QPicture &);
     qreal tcp_canvas_get_aspect_ratio();
     void baseline_canvas_set_picture(const QPicture &);

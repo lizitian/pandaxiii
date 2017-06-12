@@ -427,7 +427,7 @@ void MainWindow::on_draw_clicked()
     avg /= TcpData::units;
     for(qint64 i = 0; i < TcpData::units; i++)
         sum_square += (data[i] - avg) * (data[i] - avg);
-    statusBar()->showMessage(QString().sprintf("Trigger ID: 0x%08x , ", tcp_data->get_trigger()).append(QString("avg =%1, rms =%2").arg(avg).arg(sqrt(sum_square / (TcpData::units - 1)))));
+    statusBar()->showMessage(QString().sprintf("Trigger ID: 0x%08x, ", tcp_data->get_trigger()).append(QString("avg = %1, rms = %2").arg(avg).arg(sqrt(sum_square / (TcpData::units - 1)))));
     delete tcp_data;
     path.moveTo(0, (qreal)(TcpData::datamask - data[0]) / TcpData::datamask);
     for(qint64 i = 1; i < TcpData::units; i++)
@@ -458,15 +458,23 @@ void MainWindow::on_baselinebutton_clicked()
     painter.setBrush(Qt::white);
     for(qint64 chip = 0; chip < TcpData::chips; chip++)
         for(qint64 i = 0; i < TcpData::channels; i++) {
-            qint64 sum = 0;
+            qreal avg = 0, height;
             quint16 data[TcpData::units];
             if(!tcp_data->get_data(chip + 1, i, data)) {
                 delete tcp_data;
                 return;
             }
             for(qint64 j = 0; j < TcpData::units; j++)
-                sum += data[j];
-            qreal height = (qreal)sum / TcpData::units / TcpData::datamask;
+                avg += data[j];
+            avg /= TcpData::units;
+            if(baseline_mode() == 0)
+                height = avg / TcpData::datamask;
+            else {
+                qreal sum_square;
+                for(qint64 j = 0; j < TcpData::units; j++)
+                    sum_square += (data[j] - avg) * (data[j] - avg);
+                height = sqrt(sum_square / (TcpData::units - 1));
+            }
             painter.drawRect(QRectF((qreal)(chip * TcpData::channels + i) / (TcpData::chips * TcpData::channels), 1 - height, 1.0 / (TcpData::chips * TcpData::channels), height));
         }
     delete tcp_data;

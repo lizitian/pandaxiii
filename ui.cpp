@@ -75,6 +75,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->chip->addItem(QString::fromUtf8("Chip b"), 2);
     ui->chip->addItem(QString::fromUtf8("Chip c"), 3);
     ui->chip->addItem(QString::fromUtf8("Chip d"), 4);
+    ui->baselinemode->addItem(QString::fromUtf8("avg"), 0);
+    ui->baselinemode->addItem(QString::fromUtf8("rms"), 1);
     filename = "data.dat";
     QLabel *label; // memory
     for(qint32 i = 0; i <= 15; i++) {
@@ -202,6 +204,11 @@ qint64 MainWindow::tcp_chip()
 qint64 MainWindow::tcp_channel()
 {
     return ui->channel->text().toUInt(0, 0);
+}
+
+qint64 MainWindow::baseline_mode()
+{
+    return ui->baselinemode->itemData(ui->baselinemode->currentIndex()).toInt();
 }
 
 void MainWindow::tcp_canvas_set_picture(const QPicture &picture)
