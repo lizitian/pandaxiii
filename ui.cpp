@@ -23,6 +23,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->sfp3->addItem(QString::fromUtf8("FEC"), 1);
     ui->sfp3->addItem(QString::fromUtf8("MRC"), 2);
     ui->sfp3->addItem(QString::fromUtf8("TEST"), 3);
+    ui->sfp4->addItem(QString::fromUtf8("OFF"), 0);
+    ui->sfp4->addItem(QString::fromUtf8("FEC"), 1);
+    ui->sfp4->addItem(QString::fromUtf8("MRC"), 2);
+    ui->sfp4->addItem(QString::fromUtf8("TEST"), 3);
     ui->samplerate->addItem(QString::fromUtf8("50MHz"), 0);
     ui->samplerate->addItem(QString::fromUtf8("25MHz"), 1);
     ui->samplerate->addItem(QString::fromUtf8("12.5MHz"), 3);
