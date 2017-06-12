@@ -126,7 +126,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-quint8 MainWindow::spf_status_mask(qint64 status)
+quint8 MainWindow::sfp_status_mask(qint64 status)
 {
     quint8 mask = 0;
     if(ui->sfp0->itemData(ui->sfp0->currentIndex()).toInt() == status)
