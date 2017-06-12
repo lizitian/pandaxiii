@@ -16,7 +16,7 @@ public:
 private slots:
     void on_write_clicked();
     void on_read_clicked();
-    void on_counter_clicked();
+    void on_errortest_clicked();
     void on_CFigPLL_clicked();
     void on_AGET_test_clicked();
     void on_StartSCA_clicked();

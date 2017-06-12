@@ -30,38 +30,12 @@ QGroupBox::title {
     <attribute name="title">
      <string>系统配置</string>
     </attribute>
-    <widget class="QLabel" name="ipaddrlabel">
-     <property name="geometry">
-      <rect>
-       <x>66</x>
-       <y>105</y>
-       <width>65</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>IP Address:</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="ipaddr">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>100</y>
-       <width>120</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>192.168.10.16</string>
-     </property>
-    </widget>
     <widget class="QGroupBox" name="connectstatus">
      <property name="geometry">
       <rect>
-       <x>80</x>
-       <y>200</y>
-       <width>171</width>
+       <x>100</x>
+       <y>40</y>
+       <width>161</width>
        <height>281</height>
       </rect>
      </property>
@@ -73,106 +47,54 @@ QGroupBox::title {
        <number>20</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="label11">
-        <property name="text">
-         <string>SFP 1:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label12">
-        <property name="styleSheet">
-         <string notr="true">background-color: red;</string>
-        </property>
-        <property name="text">
-         <string>OFF</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label21">
-        <property name="text">
-         <string>SFP 2:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="label22">
-        <property name="styleSheet">
-         <string notr="true">background-color: yellow;</string>
-        </property>
-        <property name="text">
-         <string>MRC</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label31">
-        <property name="text">
-         <string>SFP 3:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLabel" name="label32">
-        <property name="styleSheet">
-         <string notr="true">background-color: green;</string>
-        </property>
-        <property name="text">
-         <string>FEC</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="label41">
+       <widget class="QLabel" name="sfp4label">
         <property name="text">
          <string>SFP 4:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="label42">
-        <property name="styleSheet">
-         <string notr="true">background-color: green;</string>
-        </property>
+      <item row="1" column="0">
+       <widget class="QLabel" name="sfp3label">
         <property name="text">
-         <string>FEC</string>
+         <string>SFP 3:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="sfp2label">
+        <property name="text">
+         <string>SFP 2:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="sfp1label">
+        <property name="text">
+         <string>SFP 1:</string>
         </property>
        </widget>
       </item>
       <item row="4" column="0">
-       <widget class="QLabel" name="label51">
+       <widget class="QLabel" name="sfp0label">
         <property name="text">
-         <string>SFP 5:</string>
+         <string>SFP 0:</string>
         </property>
        </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="sfp4"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="sfp3"/>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="sfp2"/>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="sfp1"/>
       </item>
       <item row="4" column="1">
-       <widget class="QLabel" name="label52">
-        <property name="styleSheet">
-         <string notr="true">background-color: green;</string>
-        </property>
-        <property name="text">
-         <string>FEC</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label61">
-        <property name="text">
-         <string>SFP 6:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLabel" name="label62">
-        <property name="styleSheet">
-         <string notr="true">background-color: green;</string>
-        </property>
-        <property name="text">
-         <string>FEC</string>
-        </property>
-       </widget>
+       <widget class="QComboBox" name="sfp0"/>
       </item>
      </layout>
     </widget>
@@ -510,6 +432,22 @@ QGroupBox::title {
       </property>
      </widget>
     </widget>
+    <widget class="QPushButton" name="connect">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>400</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>数据采集</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="daqdebug">
     <attribute name="title">
@@ -518,10 +456,10 @@ QGroupBox::title {
     <widget class="QGroupBox" name="rbcpbasicconfiguration">
      <property name="geometry">
       <rect>
-       <x>150</x>
-       <y>90</y>
-       <width>461</width>
-       <height>71</height>
+       <x>80</x>
+       <y>100</y>
+       <width>241</width>
+       <height>201</height>
       </rect>
      </property>
      <property name="title">
@@ -532,30 +470,58 @@ QGroupBox::title {
        <number>10</number>
       </property>
       <item row="0" column="0">
-       <widget class="QLabel" name="rbcpportlabel">
+       <widget class="QLabel" name="ipaddrlabel">
         <property name="text">
-         <string>Port:</string>
+         <string>IP Address:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
+       <widget class="QLineEdit" name="ipaddr">
+        <property name="text">
+         <string>192.168.10.16</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="rbcpportlabel">
+        <property name="text">
+         <string>RBCP Port:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
        <widget class="QLineEdit" name="rbcpport">
         <property name="text">
          <string>4660</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
+      <item row="2" column="0">
        <widget class="QLabel" name="addresslabel">
         <property name="text">
          <string>Address:</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="3">
+      <item row="2" column="1">
        <widget class="QLineEdit" name="address">
         <property name="text">
          <string>0xfffe0000</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="tcpportlabel">
+        <property name="text">
+         <string>TCP Port:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="tcpport">
+        <property name="text">
+         <string>24</string>
         </property>
        </widget>
       </item>
@@ -565,7 +531,7 @@ QGroupBox::title {
      <property name="geometry">
       <rect>
        <x>420</x>
-       <y>230</y>
+       <y>270</y>
        <width>240</width>
        <height>130</height>
       </rect>
@@ -616,8 +582,8 @@ QGroupBox::title {
     <widget class="QGroupBox" name="readdata">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>230</y>
+       <x>420</x>
+       <y>100</y>
        <width>240</width>
        <height>130</height>
       </rect>
@@ -662,64 +628,17 @@ QGroupBox::title {
       </property>
      </widget>
     </widget>
-    <widget class="QPushButton" name="counter">
+    <widget class="QPushButton" name="errortest">
      <property name="geometry">
       <rect>
-       <x>320</x>
-       <y>430</y>
+       <x>150</x>
+       <y>350</y>
        <width>100</width>
        <height>30</height>
       </rect>
      </property>
      <property name="text">
-      <string>counter</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="dataacquire">
-    <attribute name="title">
-     <string>数据获取</string>
-    </attribute>
-    <widget class="QLabel" name="tcpportlabel">
-     <property name="geometry">
-      <rect>
-       <x>283</x>
-       <y>95</y>
-       <width>28</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Port:</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="tcpport">
-     <property name="geometry">
-      <rect>
-       <x>330</x>
-       <y>90</y>
-       <width>120</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>24</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="connect">
-     <property name="geometry">
-      <rect>
-       <x>320</x>
-       <y>160</y>
-       <width>100</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>connect</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
+      <string>误码测试</string>
      </property>
     </widget>
    </widget>
@@ -856,11 +775,6 @@ QGroupBox::title {
       <string notr="true">background-color: black;</string>
      </property>
     </widget>
-   </widget>
-   <widget class="QWidget" name="systemtest">
-    <attribute name="title">
-     <string>系统测试</string>
-    </attribute>
    </widget>
   </widget>
   <widget class="QStatusBar" name="status"/>

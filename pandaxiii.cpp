@@ -61,7 +61,7 @@ void MainWindow::on_read_clicked()
     delete []data;
 }
 
-void MainWindow::on_counter_clicked()
+void MainWindow::on_errortest_clicked()
 {
     QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
