@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->chip->addItem(QString::fromUtf8("Chip b"), 2);
     ui->chip->addItem(QString::fromUtf8("Chip c"), 3);
     ui->chip->addItem(QString::fromUtf8("Chip d"), 4);
-
+    filename = "data.dat";
     QLabel *label; // memory
     for(qint32 i = 0; i <= 15; i++) {
         label = new QLabel(ui->wavedisplay);
