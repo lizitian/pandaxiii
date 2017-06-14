@@ -98,6 +98,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     ui->baselinemode->addItem(QString::fromUtf8("avg"), 0);
     ui->baselinemode->addItem(QString::fromUtf8("rms"), 1);
     filename = "data.dat";
+    tcp_worker = NULL;
     QLabel *label; // memory
     for(qint32 i = 0; i <= 15; i++) {
         label = new QLabel(ui->wavedisplay);

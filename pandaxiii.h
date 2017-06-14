@@ -36,9 +36,9 @@ private slots:
     void errortest_set_checked(bool);
 private:
     Ui::MainWindow *ui;
-    TcpWorker *tcp_worker = NULL;
+    TcpWorker *tcp_worker;
     QString filename;
-    QTime *t = NULL;
+    QTime *t;
     quint8 sfp_status_mask(qint64);
     quint8 fec_samplerate();
     quint8 fec_vicm();
