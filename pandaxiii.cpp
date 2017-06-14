@@ -272,7 +272,7 @@ void MainWindow::fec_configure(const quint8 *data, qint64 length, const QString 
     quint32 address_base = 0xfffe0020;
     quint8 mask = sfp_status_mask(1);
     QString msg = str;
-    bool ok;
+    bool ok = true;
     for(qint64 i = 0; i < 5; i++) {
         if(!(mask & (0x01 << i)))
             continue;
