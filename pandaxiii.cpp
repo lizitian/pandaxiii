@@ -70,6 +70,7 @@ void MainWindow::on_errortest_clicked(bool checked)
     if(checked) {
         if(!rbcp_write(ip_address, port, 0xfffe002c, mask) || !rbcp_write(ip_address, port, 0xfffe002b, mask)) {
             statusBar()->showMessage("Error rate test error.");
+            errortest_set_checked(false);
             return;
         }
         this->t = new QTime();
@@ -77,11 +78,13 @@ void MainWindow::on_errortest_clicked(bool checked)
         t = new QTimer();
         connect(t, SIGNAL(timeout()), this, SLOT(errortest_tick()));
         t->start(1000);
+        errortest_set_checked(true);
     } else {
         delete t;
         t = NULL;
         delete this->t;
         this->t = NULL;
+        errortest_set_checked(false);
     }
 }
 
@@ -249,7 +252,8 @@ void MainWindow::on_TriggerEn_clicked(bool checked)
         data[1] = 0x0f;
         data[2] = ((fec_trigselec() << 6) & 0xc0) | (fec_trigdelay() & 0x3f);
     }
-    fec_configure(data, sizeof(data), "Send msb and trig Command");
+    if(!fec_configure(data, sizeof(data), "Send msb and trig Command"))
+        TriggerEn_set_checked(!checked);
 }
 
 void MainWindow::on_CFigDAC_clicked()
@@ -265,7 +269,7 @@ void MainWindow::on_CFigDAC_clicked()
     fec_configure(data, sizeof(data), "DAC Configure");
 }
 
-void MainWindow::fec_configure(const quint8 *data, qint64 length, const QString &str)
+bool MainWindow::fec_configure(const quint8 *data, qint64 length, const QString &str)
 {
     QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
@@ -286,6 +290,7 @@ void MainWindow::fec_configure(const quint8 *data, qint64 length, const QString 
         statusBar()->showMessage(msg.append(" Success."));
     else
         statusBar()->showMessage(msg.append(" Fail."));
+    return ok;
 }
 
 void MainWindow::on_connect_clicked(bool checked)

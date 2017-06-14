@@ -23,15 +23,17 @@ private slots:
     void on_StartSCA_clicked();
     void on_TriggerEn_clicked(bool);
     void on_CFigDAC_clicked();
-    void fec_configure(const quint8 *, qint64, const QString &);
+    bool fec_configure(const quint8 *, qint64, const QString &);
     void on_connect_clicked(bool);
     void tcp_receive_data(quint8 *);
     void write_data_tick();
     void tcp_disconnected();
     void on_draw_clicked();
     void on_baselinebutton_clicked();
+    void TriggerEn_set_checked(bool);
     void tcp_set_enabled(bool);
     void tcp_set_connected(bool);
+    void errortest_set_checked(bool);
 private:
     Ui::MainWindow *ui;
     TcpWorker *tcp_worker = NULL;

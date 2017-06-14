@@ -262,6 +262,11 @@ void MainWindow::baseline_canvas_set_picture(const QPicture &picture)
     ui->baselinecanvas->setPicture(picture);
 }
 
+void MainWindow::TriggerEn_set_checked(bool checked)
+{
+    ui->TriggerEn->setChecked(checked);
+}
+
 void MainWindow::tcp_set_enabled(bool enabled)
 {
     ui->connect->setEnabled(enabled);
@@ -271,4 +276,10 @@ void MainWindow::tcp_set_connected(bool connected)
 {
     ui->connect->setChecked(connected);
     ui->connect->setText(QString::fromUtf8(connected ? "停止" : "数据采集"));
+}
+
+void MainWindow::errortest_set_checked(bool checked)
+{
+    ui->errortest->setChecked(checked);
+    ui->errortest->setText(QString::fromUtf8(checked ? "停止" : "误码测试"));
 }
