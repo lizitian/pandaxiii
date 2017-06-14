@@ -80,6 +80,8 @@ void MainWindow::on_errortest_clicked(bool checked)
         t->start(5000);
         errortest_set_checked(true);
     } else {
+        if(!rbcp_write(ip_address, port, 0xfffe002c, 0x00))
+            statusBar()->showMessage("Error rate test error.");
         delete t;
         t = NULL;
         delete this->t;
@@ -91,17 +93,40 @@ void MainWindow::on_errortest_clicked(bool checked)
 void MainWindow::errortest_tick()
 {
     static const qreal datarate = 800000; // bits per millisecond
+    QHostAddress ip_address = ipaddr();
+    quint16 port = rbcp_port();
     quint8 mask = sfp_status_mask(3);
+    quint64 errorrate = 0;
     QString msg = "Error Rate: ";
     for(qint64 i = 0; i < 5; i++) {
         quint8 data;
         if(!(mask & (0x01 << i)))
             continue;
-        if(!rbcp_read(ipaddr(), rbcp_port(), 1, 0xfffe0036 + i, &data)) {
+        if(!rbcp_read(ip_address, port, 0xfffe0026, &data)) {
             msg = "Error.";
             return;
         }
-        msg.append(QString("SFP%1 %2%3 ").arg(i).arg(data == 0 ? "<" : "").arg((data == 0 ? 1 : data) / datarate / t->elapsed()));
+        if(!rbcp_read(ip_address, port, 1, 0xfffe0036 + i, &data)) {
+            msg = "Error.";
+            return;
+        }
+        errorrate = data << 24;
+        if(!rbcp_read(ip_address, port, 1, 0xfffe0036 + i, &data)) {
+            msg = "Error.";
+            return;
+        }
+        errorrate |= data << 16;
+        if(!rbcp_read(ip_address, port, 1, 0xfffe0036 + i, &data)) {
+            msg = "Error.";
+            return;
+        }
+        errorrate |= data << 8;
+        if(!rbcp_read(ip_address, port, 1, 0xfffe0036 + i, &data)) {
+            msg = "Error.";
+            return;
+        }
+        errorrate |= data;
+        msg.append(QString("SFP%1 %2%3 ").arg(i).arg(data == 0 ? "<" : "").arg((data == 0 ? 1 : errorrate) / datarate / t->elapsed()));
     }
     statusBar()->showMessage(msg);
 }
@@ -319,7 +344,7 @@ void MainWindow::on_connect_clicked(bool checked)
 void MainWindow::tcp_receive_data(quint8 *data)
 {
     static QFile *file = NULL;
-    static qint64 stat = 0;
+    static qint64 stat = 0, sum = 0;
     static QTime *t = NULL;
     static QTimer *timer = NULL;
     static quint8 *queue;
@@ -338,6 +363,15 @@ void MainWindow::tcp_receive_data(quint8 *data)
         qint64 size = *((qint64 *)(queue + sizeof(quint8 *)));
         quint8 *old = queue;
         if(size > 0) {
+            sum += size;
+            if(sum > 1024 * 1024 * 1024) {
+                file->close();
+                delete file;
+                filename = QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz'.dat'");
+                file = new QFile(filename);
+                file->open(QIODevice::WriteOnly);
+                sum = size;
+            }
             file->write((char *)(queue + sizeof(quint8 *) + sizeof(qint64)), size);
             stat += size;
             if(t->elapsed() > 1000) {
@@ -357,6 +391,7 @@ void MainWindow::tcp_receive_data(quint8 *data)
         delete timer;
         file = NULL;
         stat = 0;
+        sum = 0;
         t = NULL;
         timer = NULL;
         delete []queue;
