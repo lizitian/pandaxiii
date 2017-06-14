@@ -265,12 +265,13 @@ void MainWindow::on_CFigDAC_clicked()
     fec_configure(data, sizeof(data), "DAC Configure");
 }
 
-void MainWindow::fec_configure(const quint8 *data, qint64 length, const QString &msg)
+void MainWindow::fec_configure(const quint8 *data, qint64 length, const QString &str)
 {
     QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
     quint32 address_base = 0xfffe0020;
     quint8 mask = sfp_status_mask(1);
+    QString msg = str;
     bool ok;
     for(qint64 i = 0; i < 5; i++) {
         if(!(mask & (0x01 << i)))
