@@ -77,7 +77,7 @@ void MainWindow::on_errortest_clicked(bool checked)
         this->t->start();
         t = new QTimer();
         connect(t, SIGNAL(timeout()), this, SLOT(errortest_tick()));
-        t->start(1000);
+        t->start(5000);
         errortest_set_checked(true);
     } else {
         delete t;
@@ -90,6 +90,7 @@ void MainWindow::on_errortest_clicked(bool checked)
 
 void MainWindow::errortest_tick()
 {
+    static const qreal datarate = 800000; // bits per millisecond
     quint8 mask = sfp_status_mask(3);
     QString msg = "Error Rate: ";
     for(qint64 i = 0; i < 5; i++) {
@@ -100,7 +101,7 @@ void MainWindow::errortest_tick()
             msg = "Error.";
             return;
         }
-        msg.append(QString("SFP%1 %2%3 ").arg(i).arg(data == 0 ? "<" : "").arg((qreal)(data == 0 ? 1 : data) / (800000000 * t->elapsed())));
+        msg.append(QString("SFP%1 %2%3 ").arg(i).arg(data == 0 ? "<" : "").arg((data == 0 ? 1 : data) / datarate / t->elapsed()));
     }
     statusBar()->showMessage(msg);
 }
