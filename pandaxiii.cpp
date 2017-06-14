@@ -144,19 +144,7 @@ void MainWindow::on_CFigPLL_clicked()
         0x12, 0x00, 0x00, 0x00,
         0x10, 0x00, 0x00, 0x00,
     };
-    QHostAddress ip_address = ipaddr();
-    quint16 port = rbcp_port();
-    quint32 address = rbcp_address();
-    bool ok;
-    for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_write(ip_address, port, address, data[i]);
-        if(!ok)
-            break;
-    }
-    if(ok)
-        statusBar()->showMessage("PLL Configure Success.");
-    else
-        statusBar()->showMessage("PLL Configure Fail.");
+    fec_configure(data, sizeof(data), "PLL Configure");
 }
 
 void MainWindow::on_AGET_test_clicked()
@@ -240,19 +228,7 @@ void MainWindow::on_AGET_test_clicked()
         0x41, 0x0a, 0x00, 0x00,
         0x40, 0x40, 0x00, 0x00,
     };
-    QHostAddress ip_address = ipaddr();
-    quint16 port = rbcp_port();
-    quint32 address = rbcp_address();
-    bool ok;
-    for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_write(ip_address, port, address, data[i]);
-        if(!ok)
-            break;
-    }
-    if(ok)
-        statusBar()->showMessage("AGET test mode Configure Success.");
-    else
-        statusBar()->showMessage("AGET test mode Configure Fail.");
+    fec_configure(data, sizeof(data), "AGET test mode Configure");
 }
 
 void MainWindow::on_StartSCA_clicked()
@@ -261,19 +237,7 @@ void MainWindow::on_StartSCA_clicked()
     quint8 data[] = {
         (quint8)((scachannel << 1) | 0x51), 0x08, 0x00, 0x00,
     };
-    QHostAddress ip_address = ipaddr();
-    quint16 port = rbcp_port();
-    quint32 address = rbcp_address();
-    bool ok;
-    for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_write(ip_address, port, address, data[i]);
-        if(!ok)
-            break;
-    }
-    if(ok)
-        statusBar()->showMessage("SCA Configure Success.");
-    else
-        statusBar()->showMessage("SCA Configure Fail.");
+    fec_configure(data, sizeof(data), "SCA Configure");
 }
 
 void MainWindow::on_TriggerEn_clicked(bool checked)
@@ -285,19 +249,7 @@ void MainWindow::on_TriggerEn_clicked(bool checked)
         data[1] = 0x0f;
         data[2] = ((fec_trigselec() << 6) & 0xc0) | (fec_trigdelay() & 0x3f);
     }
-    QHostAddress ip_address = ipaddr();
-    quint16 port = rbcp_port();
-    quint32 address = rbcp_address();
-    bool ok;
-    for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_write(ip_address, port, address, data[i]);
-        if(!ok)
-            break;
-    }
-    if(ok)
-        statusBar()->showMessage("Send msb and trig Command Success.");
-    else
-        statusBar()->showMessage("Send msb and trig Command Fail.");
+    fec_configure(data, sizeof(data), "Send msb and trig Command");
 }
 
 void MainWindow::on_CFigDAC_clicked()
@@ -310,19 +262,29 @@ void MainWindow::on_CFigDAC_clicked()
       //0xc1, 0x00, 0x31, 0x10,
       //0xc1, 0x00, 0x31, 0x00,
     };
+    fec_configure(data, sizeof(data), "DAC Configure");
+}
+
+void MainWindow::fec_configure(const quint8 *data, qint64 length, const QString &)
+{
     QHostAddress ip_address = ipaddr();
     quint16 port = rbcp_port();
-    quint32 address = rbcp_address();
+    quint32 address_base = 0xfffe0020;
+    quint8 mask = sfp_status_mask(1);
     bool ok;
-    for(quint16 i = 0; i < sizeof(data); i++) {
-        ok = rbcp_write(ip_address, port, address, data[i]);
-        if(!ok)
-            break;
+    for(qint64 i = 0; i < 5; i++) {
+        if(!(mask & (0x01 << i)))
+            continue;
+        for(quint16 i = 0; i < length; i++) {
+            ok = rbcp_write(ip_address, port, address_base + i, data[i]);
+            if(!ok)
+                break;
+        }
     }
     if(ok)
-        statusBar()->showMessage("DAC Configure Success.");
+        statusBar()->showMessage(msg.append(" Success."));
     else
-        statusBar()->showMessage("DAC Configure Fail.");
+        statusBar()->showMessage(msg.append(" Fail."));
 }
 
 void MainWindow::on_connect_clicked(bool checked)

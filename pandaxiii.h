@@ -23,6 +23,7 @@ private slots:
     void on_StartSCA_clicked();
     void on_TriggerEn_clicked(bool);
     void on_CFigDAC_clicked();
+    void fec_configure(const quint8 *data, qint64 length, const QString &);
     void on_connect_clicked(bool);
     void tcp_receive_data(quint8 *);
     void write_data_tick();
