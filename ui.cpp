@@ -270,5 +270,5 @@ void MainWindow::tcp_set_enabled(bool enabled)
 void MainWindow::tcp_set_connected(bool connected)
 {
     ui->connect->setChecked(connected);
-    ui->connect->setText(connected ? "disconnect" : "connect");
+    ui->connect->setText(connected ? "停止" : "数据采集");
 }
