@@ -100,7 +100,7 @@ void MainWindow::errortest_tick()
             msg = "Error.";
             return;
         }
-        msg.append(QString("SFP%1 %2 ").arg(i).arg((qreal)data / (800000000 * t->elapsed())));
+        msg.append(QString("SFP%1 %2%3 ").arg(i).arg(data == 0 ? "<" : "").arg((qreal)(data == 0 ? 1 : data) / (800000000 * t->elapsed())));
     }
     statusBar()->showMessage(msg);
 }
