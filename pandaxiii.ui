@@ -453,7 +453,7 @@ QGroupBox::title {
     <attribute name="title">
      <string>DAQ调试</string>
     </attribute>
-    <widget class="QGroupBox" name="rbcpbasicconfiguration">
+    <widget class="QGroupBox" name="basicconfiguration">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -465,7 +465,7 @@ QGroupBox::title {
      <property name="title">
       <string>Basic Configuration</string>
      </property>
-     <layout class="QGridLayout" name="rbcpbasicconfigurationlayout">
+     <layout class="QGridLayout" name="basicconfigurationlayout">
       <property name="topMargin">
        <number>10</number>
       </property>

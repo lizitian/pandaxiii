@@ -1,5 +1,5 @@
-#ifndef RBCP_H
-#define RBCP_H
+#ifndef PANDAXIII_H
+#define PANDAXIII_H
 #include <QtGui>
 #include <QtNetwork>
 namespace Ui
