@@ -306,8 +306,8 @@ bool MainWindow::fec_configure(const quint8 *data, qint64 length, const QString 
     for(qint64 i = 0; i < 5; i++) {
         if(!(mask & (0x01 << i)))
             continue;
-        for(quint16 i = 0; i < length; i++) {
-            ok = rbcp_write(ip_address, port, address_base + i, data[i]);
+        for(quint16 j = 0; j < length; j++) {
+            ok = rbcp_write(ip_address, port, address_base + i, data[j]);
             if(!ok)
                 break;
         }
