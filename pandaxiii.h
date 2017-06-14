@@ -53,8 +53,8 @@ private:
     quint8 fec_dacthres();
     QHostAddress ipaddr();
     quint16 rbcp_port();
-    quint32 rbcp_address();
     quint16 tcp_port();
+    quint32 rbcp_address();
     quint8 rbcp_length();
     QString rbcp_data();
     qint64 tcp_packet();

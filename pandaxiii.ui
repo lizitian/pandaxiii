@@ -498,30 +498,30 @@ QGroupBox::title {
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="addresslabel">
-        <property name="text">
-         <string>Address:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="address">
-        <property name="text">
-         <string>0xfffe0000</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
        <widget class="QLabel" name="tcpportlabel">
         <property name="text">
          <string>TCP Port:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="2" column="1">
        <widget class="QLineEdit" name="tcpport">
         <property name="text">
          <string>24</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="addresslabel">
+        <property name="text">
+         <string>Address:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="address">
+        <property name="text">
+         <string>0xfffe0000</string>
         </property>
        </widget>
       </item>

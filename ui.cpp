@@ -207,14 +207,14 @@ quint16 MainWindow::rbcp_port()
     return ui->rbcpport->text().toUInt(0, 0);
 }
 
-quint32 MainWindow::rbcp_address()
-{
-    return ui->address->text().toUInt(0, 0);
-}
-
 quint16 MainWindow::tcp_port()
 {
     return ui->tcpport->text().toUInt(0, 0);
+}
+
+quint32 MainWindow::rbcp_address()
+{
+    return ui->address->text().toUInt(0, 0);
 }
 
 quint8 MainWindow::rbcp_length()
