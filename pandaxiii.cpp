@@ -102,7 +102,7 @@ void MainWindow::errortest_tick()
         quint8 data;
         if(!(mask & (0x01 << i)))
             continue;
-        if(!rbcp_read(ip_address, port, 0xfffe0026, &data)) {
+        if(!rbcp_read(ip_address, port, 1, 0xfffe0026, &data)) {
             msg = "Error.";
             return;
         }
