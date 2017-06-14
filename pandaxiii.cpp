@@ -709,6 +709,7 @@ TcpData::~TcpData()
 bool TcpData::read(quint16 packet)
 {
     quint16 data;
+    quint32 trigger;
     quint16 flags = 0;
     file->open(QIODevice::ReadOnly);
     while(flags != 0xffff >> (16 - chips)) {
@@ -737,6 +738,10 @@ bool TcpData::read(quint16 packet)
             return false;
         }
         trigger |= qFromBigEndian(data);
+        if(flags == 0)
+            this->trigger = trigger;
+        else if(trigger != this->trigger)
+            chip = -2;
         if(!read16(&data)) {
             qWarning("Wrong Header.");
             file->close();
