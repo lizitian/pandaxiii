@@ -878,9 +878,9 @@ void TcpCom::on_readyRead()
         delete []data;
         return;
     }
+    *((quint8 **)data) = NULL;
     *((quint8 **)queue) = data;
     queue = data;
-    *((quint8 **)queue) = NULL;
     *((qint64 *)(queue + sizeof(quint8 *))) = size;
 }
 
